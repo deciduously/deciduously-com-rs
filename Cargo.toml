@@ -7,4 +7,9 @@ authors = ["deciduously <github@deciduously.com>"]
 
 actix = "0.5"
 actix-web = "0.6"
+askama = "0.7"
 env_logger = "0.5"
+
+[build-dependencies]
+
+askama = "0.7"
