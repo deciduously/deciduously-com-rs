@@ -19,8 +19,8 @@ fn main() {
         App::new()
             .middleware(middleware::Logger::default())
             .route("/", Method::GET, index)
-    }).bind("127.0.0.1:3000")
-        .expect("Cannot bind to port 3000")
+    }).bind("127.0.0.1:8080")
+        .expect("Cannot bind to port 8080")
         .start();
 
     let _ = sys.run();

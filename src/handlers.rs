@@ -1,15 +1,25 @@
-use actix_web::{HttpRequest, Result};
+use actix_web::{Error, HttpRequest, HttpResponse, Responder};
 use askama::Template;
 
 #[derive(Template)]
-#[template(path = "hello.html")]
+#[template(path = "index.html")]
 
 // this can be named anything
-struct HelloTemplate<'a> {
+struct IndexTemplate<'a> {
     name: &'a str,
 }
 
-pub fn index(_req: HttpRequest) -> Result<String> {
-    let hello = HelloTemplate { name: "world" };
-    Ok(format!("{}", hello.render().unwrap()))
+impl<'a> Responder for IndexTemplate<'a> {
+    type Item = HttpResponse;
+    type Error = Error;
+
+    fn respond_to<S>(self, _req: &HttpRequest<S>) -> Result<HttpResponse, Error> {
+        let body = self.render().unwrap();
+
+        Ok(HttpResponse::Ok().content_type("text/html").body(body))
+    }
+}
+
+pub fn index(_req: HttpRequest) -> impl Responder {
+    IndexTemplate { name: "world" }
 }
