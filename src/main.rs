@@ -3,6 +3,7 @@ extern crate actix_web;
 #[macro_use]
 extern crate askama;
 extern crate env_logger;
+extern crate pulldown_cmark;
 
 mod handlers;
 
@@ -19,6 +20,7 @@ fn main() {
         App::new()
             .middleware(middleware::Logger::default())
             .route("/", Method::GET, index)
+            .route("/md", Method::GET, parse_md)
     }).bind("127.0.0.1:8080")
         .expect("Cannot bind to port 8080")
         .start();
