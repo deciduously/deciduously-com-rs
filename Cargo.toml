@@ -1,0 +1,10 @@
+[package]
+name = "deciduously-com"
+version = "0.2.0"
+authors = ["deciduously <github@deciduously.com>"]
+
+[dependencies]
+
+actix = "0.5"
+actix-web = "0.6"
+env_logger = "0.5"
