@@ -9,6 +9,7 @@ struct IndexTemplate<'a> {
     name: &'a str,
 }
 
+// TODO This boilerplate feels automatable
 impl<'a> Responder for IndexTemplate<'a> {
     type Item = HttpResponse;
     type Error = Error;
