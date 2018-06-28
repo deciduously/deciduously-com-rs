@@ -1,5 +1,5 @@
 # deciduously-com
-Kinda-sorta proxy the (Cobalt UI)[http://cobalt-org.github.io/docs/usage.html]
+Kinda-sorta proxy the [Cobalt UI](http://cobalt-org.github.io/docs/usage.html)
 * Use a "config.yml" for site-wide config
 * "serve" command to serve the site
 * add "new" to add a post - optional?
