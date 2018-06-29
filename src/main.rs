@@ -13,6 +13,7 @@ use handlers::*;
 use std::{env, process};
 
 enum Cmd {
+    Usage,
     Publish,
     Serve,
 }
@@ -20,6 +21,7 @@ enum Cmd {
 impl Cmd {
     fn run(&self) {
         match self {
+            Cmd::Usage => usage(),
             Cmd::Publish => publish(),
             Cmd::Serve => serve(),
         }
@@ -49,14 +51,21 @@ fn serve() {
     let _ = sys.run();
 }
 
+fn usage() {
+    // TODO add verison
+    println!("deciduously-com\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
+    process::exit(0);
+}
+
 fn main() {
     let cmd = if let Some(arg) = env::args().nth(1) {
         match arg.as_ref() {
             "publish" => Cmd::Publish,
             "serve" => Cmd::Serve,
+            "help" => Cmd::Usage,
             _ => {
                 eprintln!(
-                    "Unrecognized operation: {}\nSupported operations: publish | serve",
+                    "Unrecognized operation: {}\nSupported operations: help | publish | serve",
                     arg
                 );
                 process::exit(1);
