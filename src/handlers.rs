@@ -36,6 +36,11 @@ pub fn index(_req: HttpRequest) -> impl Responder {
 // removing them from drafts (maybe?)
 // either all posts in drafts or a specific post
 
+// ALSO it's not enough to just run the parser
+// you need to embed the generated HTML in our page skeleton
+// in draft/ it'll happen on the fly
+// in post/ it'll be part of the bake process.
+
 pub fn parse_md(post: Path<String>) -> Result<HttpResponse, Error> {
     // TODO return a 404 if not found
     let html = bake(&post)?;
