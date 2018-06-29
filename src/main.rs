@@ -6,6 +6,7 @@ extern crate env_logger;
 extern crate pulldown_cmark;
 
 mod handlers;
+mod markdown;
 
 use actix_web::{http::Method, middleware, server::HttpServer, App};
 use handlers::*;

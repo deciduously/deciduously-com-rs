@@ -1,6 +1,6 @@
 use actix_web::{Error, HttpRequest, HttpResponse, Responder};
 use askama::Template;
-use pulldown_cmark::{html, Parser};
+use markdown::bake;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -26,22 +26,10 @@ pub fn index(_req: HttpRequest) -> impl Responder {
     IndexTemplate { name: "world" }
 }
 
-// luckily for testing, Strings are Responders
-pub fn parse_md(_req: HttpRequest) -> Result<HttpResponse, Error> {
-    let markdown_str = r#"
-Howdy
-# Head 1
-## Head 2
-* list 1
-* **bold** list 2
+// BEN - you should be baking these ahead of time for production serving.
+// No reason to run the parser live - it wont be changing.
 
-`inline code` is *one* option
-```rust
-code blocks are another
-```
-"#;
-    let parser = Parser::new(markdown_str);
-    let mut html_buf = String::new();
-    html::push_html(&mut html_buf, parser);
-    Ok(HttpResponse::Ok().content_type("text/html").body(html_buf))
+pub fn parse_md(_req: HttpRequest) -> Result<HttpResponse, Error> {
+    let html = bake("hello")?;
+    Ok(HttpResponse::Ok().content_type("text/html").body(html))
 }
