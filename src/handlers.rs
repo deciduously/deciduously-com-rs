@@ -29,6 +29,13 @@ pub fn index(_req: HttpRequest) -> impl Responder {
 // BEN - you should be baking these ahead of time for production serving.
 // No reason to run the parser live - it wont be changing.
 
+// Try having a /draft endpoint which runs the parser live like this
+// and doenst have a link from the front page
+// as well as a /post endpoint which only serves pre-baked posts
+// and include a "publish" command in the executable to bake posts to that alternate location,
+// removing them from drafts (maybe?)
+// either all posts in drafts or a specific post
+
 pub fn parse_md(post: Path<String>) -> Result<HttpResponse, Error> {
     // TODO return a 404 if not found
     let html = bake(&post)?;
