@@ -10,9 +10,27 @@ mod markdown;
 
 use actix_web::{http::Method, middleware, server::HttpServer, App};
 use handlers::*;
-use std::env;
+use std::{env, process};
 
-fn main() {
+enum Cmd {
+    Publish,
+    Serve,
+}
+
+impl Cmd {
+    fn run(&self) {
+        match self {
+            Cmd::Publish => publish(),
+            Cmd::Serve => serve(),
+        }
+    }
+}
+
+fn publish() {
+    unimplemented!()
+}
+
+fn serve() {
     let sys = actix::System::new("deciduously-com");
     env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
@@ -29,4 +47,24 @@ fn main() {
         .start();
 
     let _ = sys.run();
+}
+
+fn main() {
+    let cmd = if let Some(arg) = env::args().nth(1) {
+        match arg.as_ref() {
+            "publish" => Cmd::Publish,
+            "serve" => Cmd::Serve,
+            _ => {
+                eprintln!(
+                    "Unrecognized operation: {}\nSupported operations: publish | serve",
+                    arg
+                );
+                process::exit(1);
+            }
+        }
+    } else {
+        Cmd::Serve
+    };
+
+    cmd.run();
 }
