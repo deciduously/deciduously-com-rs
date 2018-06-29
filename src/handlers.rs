@@ -1,4 +1,4 @@
-use actix_web::{Error, HttpRequest, HttpResponse, Responder};
+use actix_web::{Error, HttpRequest, HttpResponse, Path, Responder};
 use askama::Template;
 use markdown::bake;
 
@@ -29,7 +29,8 @@ pub fn index(_req: HttpRequest) -> impl Responder {
 // BEN - you should be baking these ahead of time for production serving.
 // No reason to run the parser live - it wont be changing.
 
-pub fn parse_md(_req: HttpRequest) -> Result<HttpResponse, Error> {
-    let html = bake("hello")?;
+pub fn parse_md(post: Path<String>) -> Result<HttpResponse, Error> {
+    // TODO return a 404 if not found
+    let html = bake(&post)?;
     Ok(HttpResponse::Ok().content_type("text/html").body(html))
 }

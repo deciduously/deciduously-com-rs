@@ -21,7 +21,9 @@ fn main() {
         App::new()
             .middleware(middleware::Logger::default())
             .route("/", Method::GET, index)
-            .route("/md", Method::GET, parse_md)
+            .resource("/post/{post_name}", |r| {
+                r.method(Method::GET).with(parse_md)
+            })
     }).bind("127.0.0.1:8080")
         .expect("Cannot bind to port 8080")
         .start();
