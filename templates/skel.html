@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    <title>{% block title %}{{ title }} - deciduously{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <div id="content">
+                {% block content %}{% endblock %}
+            </div>
+            <footer>
+                &#169; 2018
+                <a href="/">deciduously</a>
+                <br />
+                <a href="https://github.com/deciduously/deciduously-com" >source</a>
+            </footer>
+        </div>
+    </section>
+</body>
+</html>

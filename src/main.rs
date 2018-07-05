@@ -10,7 +10,7 @@ mod markdown;
 
 use actix_web::{http::Method, middleware, server::HttpServer, App};
 use handlers::*;
-use std::{env, process};
+use std::{env, fs, io, process};
 
 enum Cmd {
     Usage,
@@ -22,14 +22,43 @@ impl Cmd {
     fn run(&self) {
         match self {
             Cmd::Usage => usage(),
-            Cmd::Publish => publish(),
+            Cmd::Publish => {
+                publish().unwrap();
+            }
             Cmd::Serve => serve(),
         }
     }
 }
 
-fn publish() {
-    unimplemented!()
+fn publish() -> io::Result<()> {
+    // pop a brand new child template in posts/
+    // for every .md in drafts that doesnt have a match
+    // To re-publish, we'll need to specify the specific post name
+    // For starters, though, just get this working
+
+    let drafts = fs::read_dir("./drafts/")?;
+    let posts = fs::read_dir("./posts/")?;
+    let mut unpublished = Vec::new();
+
+    // BEN none of this owrked - above yo should use iterators to just collect filenames
+
+    // Find the drafts with no matching post
+    for draft in drafts {
+        let draft_name = draft.unwrap().file_name();
+        let mut unpublished_draft = true;
+        for post in posts {
+            if draft_name == post.unwrap().file_name() {
+                unpublished_draft == false;
+                break;
+            }
+        }
+        if unpublished_draft {
+            unpublished.push(&draft);
+        }
+    }
+
+    println!("Unpublished: {:?}", unpublished);
+    Ok(())
 }
 
 fn serve() {

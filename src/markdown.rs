@@ -6,7 +6,7 @@ use std::{
 // Take a post name, look for it in posts/, and return the parsed HTML string
 pub fn bake(f: &str) -> Result<String> {
     // Open the file
-    let path = PathBuf::from(&format!("posts/{}.md", f));
+    let path = PathBuf::from(&format!("drafts/{}.md", f));
     let md_file = File::open(path)?;
 
     // Read the contents to a string
@@ -21,5 +21,6 @@ pub fn bake(f: &str) -> Result<String> {
     html::push_html(&mut html_buf, parser);
 
     // Send it on up
+    println!("{}", html_buf);
     Ok(html_buf)
 }
