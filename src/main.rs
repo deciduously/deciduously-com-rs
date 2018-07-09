@@ -42,7 +42,7 @@ fn serve() {
             .middleware(middleware::Logger::default())
             .route("/", Method::GET, index)
             .resource("/post/{post_name}", |r| {
-                r.method(Method::GET).with(parse_md)
+                r.method(Method::GET).with(get_post)
             })
     }).bind("127.0.0.1:8080")
         .expect("Cannot bind to port 8080")

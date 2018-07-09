@@ -7,7 +7,7 @@ fn file_names(path: &str) -> io::Result<Vec<String>> {
             file.ok().and_then(|e| {
                 e.path()
                     .file_name()
-                    .and_then(|n| n.to_str().map(|s| String::from(s)))
+                    .and_then(|n| n.to_str().map(String::from))
             })
         })
         .collect::<Vec<String>>())
@@ -24,12 +24,15 @@ fn switch_ext_md_to_html(p: &str) -> io::Result<String> {
     Ok(format!("{}.html", base_file_name(p)?))
 }
 
-pub fn publish() -> io::Result<()> {
-    // pop a brand new child template in posts/
-    // for every .md in drafts that doesnt have a match
-    // To re-publish, we'll need to specify the specific post name
-    // For starters, though, just get this working
+// Takes an HTML string and surrounds it with template boilerplate
+fn wrap_content(content: String) -> String {
+    let prefix = "{% block content %}";
+    let postfix = "{% endblock %}";
+    // You may need to kill the second \n
+    format!("{}\n{}\n{}", prefix, content, postfix)
+}
 
+pub fn publish() -> io::Result<()> {
     println!("Publishing drafts...");
 
     // TEMPORARILY delete posts first - we'll just rebuild everything
@@ -37,7 +40,6 @@ pub fn publish() -> io::Result<()> {
     fs::remove_dir_all("./posts")?;
 
     // make /posts/ if it doesn't exist
-    // check if it is
     if !Path::new("./posts").exists() {
         // TODO use a real logger
         println!("No posts directory present - creating...");
@@ -45,17 +47,12 @@ pub fn publish() -> io::Result<()> {
     }
 
     let drafts = file_names("./drafts/")?;
-    //let posts = file_names("./posts/")?;
-
-    // Find the drafts with no matching post
-
-    // FOR NOW lets just do all of them
     for draft in drafts {
-        // we want to markdown it.
-
         let output_name = switch_ext_md_to_html(&draft)?;
         println!("draft: {}\n{}", &draft, &output_name);
-        let rendered = bake(base_file_name(&draft)?).expect("Could not render selected draft");
+        let rendered =
+            wrap_content(bake(base_file_name(&draft)?).expect("Could not render selected draft"));
+
         // save it to posts
         let _ = fs::write(format!("./posts/{}", &output_name), rendered);
     }

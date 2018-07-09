@@ -29,23 +29,12 @@ pub fn index(_req: HttpRequest) -> impl Responder {
     IndexTemplate {}
 }
 
-// BEN - you should be baking these ahead of time for production serving.
-// No reason to run the parser live - it wont be changing.
+// Eventually, have a /drafts endpoint that can show the draft md files
 
-// Try having a /draft endpoint which runs the parser live like this
-// and doenst have a link from the front page
-// as well as a /post endpoint which only serves pre-baked posts
-// and include a "publish" command in the executable to bake posts to that alternate location,
-// removing them from drafts (maybe?)
-// either all posts in drafts or a specific post
-
-// ALSO it's not enough to just run the parser
-// you need to embed the generated HTML in our page skeleton
-// in draft/ it'll happen on the fly
-// in post/ it'll be part of the bake process.
-
-pub fn parse_md(post: Path<String>) -> Result<HttpResponse, Error> {
+// GET /post/<title>
+pub fn get_post(post: Path<String>) -> Result<HttpResponse, Error> {
     // TODO return a 404 if not found
-    let html_post = bake(&post).expect("Could not bake requested markdown resource");
+    // TODO how do we compile a template on the fly
+    let html_post = "<h1>broken</h1>";
     Ok(HttpResponse::Ok().content_type("text/html").body(html_post))
 }

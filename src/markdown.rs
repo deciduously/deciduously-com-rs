@@ -21,6 +21,5 @@ pub fn bake(f: &str) -> Result<String> {
     html::push_html(&mut html_buf, parser);
 
     // Send it on up
-    println!("{}", html_buf);
     Ok(html_buf)
 }
