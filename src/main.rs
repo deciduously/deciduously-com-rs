@@ -7,10 +7,12 @@ extern crate pulldown_cmark;
 
 mod handlers;
 mod markdown;
+mod publish;
 
 use actix_web::{http::Method, middleware, server::HttpServer, App};
 use handlers::*;
-use std::{env, fs, io, process};
+use publish::publish;
+use std::{env, process};
 
 enum Cmd {
     Usage,
@@ -28,35 +30,6 @@ impl Cmd {
             Cmd::Serve => serve(),
         }
     }
-}
-
-fn file_names(path: &str) -> io::Result<Vec<String>> {
-    Ok(fs::read_dir(path)?
-        .filter_map(|file| {
-            file.ok().and_then(|e| {
-                e.path()
-                    .file_name()
-                    .and_then(|n| n.to_str().map(|s| String::from(s)))
-            })
-        })
-        .collect::<Vec<String>>())
-}
-
-fn publish() -> io::Result<()> {
-    // pop a brand new child template in posts/
-    // for every .md in drafts that doesnt have a match
-    // To re-publish, we'll need to specify the specific post name
-    // For starters, though, just get this working
-
-    // TODO make /posts/ if it doesn't exist
-
-    let drafts = file_names("./drafts/")?;
-    let posts = file_names("./posts/")?;
-
-    // Find the drafts with no matching post
-
-    println!("Drafts: {:?}\nPosts: {:?}", drafts, posts);
-    Ok(())
 }
 
 fn serve() {
