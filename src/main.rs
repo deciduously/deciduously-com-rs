@@ -1,9 +1,15 @@
 extern crate actix;
 extern crate actix_web;
-#[macro_use]
-extern crate askama;
 extern crate env_logger;
+#[macro_use]
+extern crate lazy_static;
 extern crate pulldown_cmark;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+#[macro_use]
+extern crate tera;
 
 mod handlers;
 mod markdown;
@@ -13,6 +19,11 @@ use actix_web::{http::Method, middleware, server::HttpServer, App};
 use handlers::*;
 use publish::publish;
 use std::{env, process};
+use tera::Tera;
+
+lazy_static! {
+    pub static ref TERA: Tera = compile_templates!("templates/**/*");
+}
 
 enum Cmd {
     Usage,

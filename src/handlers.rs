@@ -1,32 +1,23 @@
 use actix_web::{Error, HttpRequest, HttpResponse, Path, Responder};
-use askama::Template;
-use markdown::bake;
 
-// this couldn't be a &'a str because of the impl Responder
-#[derive(Template)]
-#[template(path = "skel.html")]
-struct PageWrapperTemplate {
-    title: String,
-}
+#[derive(Serialize)]
+struct IndexContext {}
 
-#[derive(Template)]
-#[template(path = "index.html")]
-struct IndexTemplate {}
-
-// TODO This boilerplate feels automatable
-impl Responder for IndexTemplate {
+impl Responder for IndexContext {
     type Item = HttpResponse;
     type Error = Error;
 
     fn respond_to<S>(self, _req: &HttpRequest<S>) -> Result<HttpResponse, Error> {
-        let body = self.render().unwrap();
+        let body = super::TERA
+            .render("index.html", &self)
+            .expect("Problem rendering index");
 
         Ok(HttpResponse::Ok().content_type("text/html").body(body))
     }
 }
 
 pub fn index(_req: HttpRequest) -> impl Responder {
-    IndexTemplate {}
+    IndexContext {}
 }
 
 // Eventually, have a /drafts endpoint that can show the draft md files

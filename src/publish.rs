@@ -37,13 +37,13 @@ pub fn publish() -> io::Result<()> {
 
     // TEMPORARILY delete posts first - we'll just rebuild everything
     println!("!!Purging posts directory!!");
-    fs::remove_dir_all("./posts")?;
+    fs::remove_dir_all("./templates/posts")?;
 
     // make /posts/ if it doesn't exist
     if !Path::new("./posts").exists() {
         // TODO use a real logger
         println!("No posts directory present - creating...");
-        fs::create_dir("./posts")?;
+        fs::create_dir("./templates/posts")?;
     }
 
     let drafts = file_names("./drafts/")?;
@@ -54,7 +54,7 @@ pub fn publish() -> io::Result<()> {
             wrap_content(bake(base_file_name(&draft)?).expect("Could not render selected draft"));
 
         // save it to posts
-        let _ = fs::write(format!("./posts/{}", &output_name), rendered);
+        let _ = fs::write(format!("./templates/posts/{}", &output_name), rendered);
     }
 
     Ok(())
