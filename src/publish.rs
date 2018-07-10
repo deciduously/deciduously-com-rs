@@ -25,11 +25,12 @@ fn switch_ext_md_to_html(p: &str) -> io::Result<String> {
 }
 
 // Takes an HTML string and surrounds it with template boilerplate
-fn wrap_content(content: String) -> String {
-    let prefix = "{% block content %}";
+fn wrap_content(content: String, title: &str) -> String {
+    let prefix = "{% extends \"skel.html\" %}\n\n{% block content %}";
+    let title_block = format!("{{% block title %}}{}{{% endblock %}}", title);
     let postfix = "{% endblock %}";
     // You may need to kill the second \n
-    format!("{}\n{}\n{}", prefix, content, postfix)
+    format!("{}\n{}\n{}\n{}", prefix, title_block, content, postfix)
 }
 
 pub fn publish() -> io::Result<()> {
@@ -50,8 +51,10 @@ pub fn publish() -> io::Result<()> {
     for draft in drafts {
         let output_name = switch_ext_md_to_html(&draft)?;
         println!("draft: {}\n{}", &draft, &output_name);
-        let rendered =
-            wrap_content(bake(base_file_name(&draft)?).expect("Could not render selected draft"));
+        let rendered = wrap_content(
+            bake(base_file_name(&draft)?).expect("Could not render selected draft"),
+            base_file_name(&draft)?,
+        );
 
         // save it to posts
         let _ = fs::write(format!("./templates/posts/{}", &output_name), rendered);

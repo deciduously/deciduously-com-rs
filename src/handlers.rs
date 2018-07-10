@@ -3,6 +3,9 @@ use actix_web::{Error, HttpRequest, HttpResponse, Path, Responder};
 #[derive(Serialize)]
 struct IndexContext {}
 
+#[derive(Serialize)]
+struct PostContext {}
+
 impl Responder for IndexContext {
     type Item = HttpResponse;
     type Error = Error;
@@ -26,6 +29,10 @@ pub fn index(_req: HttpRequest) -> impl Responder {
 pub fn get_post(post: Path<String>) -> Result<HttpResponse, Error> {
     // TODO return a 404 if not found
     // TODO how do we compile a template on the fly
-    let html_post = "<h1>broken</h1>";
-    Ok(HttpResponse::Ok().content_type("text/html").body(html_post))
+    let path = format!("posts/{}.html", post.into_inner());
+    println!("{}", path);
+    let body = super::TERA
+        .render(&path, &PostContext {})
+        .expect("Could not render post");
+    Ok(HttpResponse::Ok().content_type("text/html").body(body))
 }
