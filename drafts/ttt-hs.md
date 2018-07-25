@@ -236,20 +236,40 @@ foldr (+) 1 [2, 3, 4, 5]
 See what happened there?  We processed the one and dropped it, so our collection got shorter and we have a running total.  Expanding:
 
 ```haskell
-foldr (+) 3 [3, 4, 5]
-foldr (+) 6 [4, 5]
-foldr (+) 10 [5]
-foldr (+) 15 []
+  foldr (+) 3 [3, 4, 5]
+= foldr (+) 6 [4, 5]
+= foldr (+) 10 [5]
+= foldr (+) 15 []
+= 15
 ```
 
-When a recursive function tried to recur on an empty list, it knows it's done and returns the final value - in this case `15`.  We've managed to iterate without looping!  We were able to reuse the same exact function over and over again, only changing what we pass in pased on the output of the previous run.  Recursion, yo.
+When a recursive function tries to recur on an empty list, it knows it's done and returns the final value - in this case `15`.  We've managed to iterate without looping!  We were able to reuse the same exact function over and over again, only changing what we pass in based on the output of the previous run.  Recursion, yo.
 
 As an aside, this example could have been rewritten: `addEmUp = foldr (+) 0` - if the argument is the final term in the definition and the argument list, it can be dropped.  The compiler instead sees this definition as a curried function expecting one more value, and if it gets called with that value, it will fully evaluate the expression.
 
 #### Back to `Show`
 
-That digression got away from me, but now we're armed to dive in to this bigger, messier fold.  We know its going to do the same basic type of thing as `addEmUp`.
+That digression got away from me, but now we're armed to dive in to this bigger, messier fold.  We know its going to do the same basic type of thing as `addEmUp`.  So the first thing to look for is those three elements we know we'll need: the processing function, the starting value to accumulate in to, and the collection to process.  As a reminder, here's the first line of our `show` definition:
 
+```haskell
+show (Board cs) = foldr spaceEachThird [].withIndicesFrom 1.fmap showCell $ cs
+```
+
+The final part, the collection, is easy.  Remembering that `$` is function application, we know we're going to apply this fold to `cs`, which we know from the argument list is our list of cells: `Board cs`.  Then we can just follow the types.  We have a word `spaceEachThird` in the first position, which must be our processing function, and the rest of it must just define our starting accumulator.  It's a lot more to look at than a nice neat `0` but I bet (well, I hope, again - I don't remember this code) that it's going to evaluate to a value, not a function.
+
+I think I want to explore that `spaceEachThird` shindig first - this is what's going to happen to every cell.
+
+```haskell
+where spaceEachThird a = (++) (bool (snd a) (snd a ++ "\n") (fst a `rem` 3 == 0))
+```
+
+The `where` just means we're defining `spaceEachThird` locally for this function only - it isn't needed outside of this exact context.  We could have defined it inline using Haskell's anonymous function syntax (`\x -> x + 1`), but even I must have decided that was too hard to read and split it out.
+
+Anyway, `spaceEachThird` has been defined as taking a single argument, `a`.  In this case, `a` is going to be our current cell - conveniently it matches what we've been using as a stand-in type.  We know the processor acts on two input values, and the other one is our accumulator, so in our definition it's going to look like we're missing an argument.  It's going to be the accumulator.
+
+The first part of the definition is `(++)` is concatenation.  There's a clue to where our other type goes - we're going to have whatever we're doingwith `a`, the active cell, on one side, and it's going to get concatenated to the accumulator.  That makes sense - it's kind of like adding an `Int` to the accumulator.  The accumulator will now hold information from both operands.  What on earth are we adding, though?
+
+I've grabbed the `bool` function from `Data.Bool` and it's really just some control flow.
 
 ### Footnotes
 
