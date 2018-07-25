@@ -10,7 +10,7 @@ In the meantime, I don't have much to show for this experiment, having jumped sh
 
 I am not remotely qualified by any metric to write this post, as it turns out Haskell is just not that bad.  What's scary is how different it can be to work with than what you're used to, so you hit a lot more walls at the very beginning, and it can feel difficult knowing how to even go about implementing something simple like this.  Hopefully seeing it in English too to will help you (and me, again) get going!
 
-This is **not** a tutorial - I don't think.  I do think it might be useful for building other little Haskell programs for getting your feet wet, but I don't build this up in the way a traditional tutorial would, making sure it compiles along the way.  This is top-down, entry-point first, let's see what's here.  I'd argue it's an equally important skill, but then again, I wrote the damn thing so who'd take my word for it.
+This is **not** a tutorial - I don't think.  I do think it might be useful for building other little Haskell programs for getting your feet wet, but I don't build this up in the way a traditional tutorial would, making sure it compiles along the way.  This is top-down, entry-point first, let's see what's here.    I'd argue it's an equally important skill, but then again, I wrote the damn thing so who'd take my word for it.
 
 ## The program
 
@@ -52,7 +52,7 @@ Suck it, random number generator.
 
 ## The walkthrough
 
-My aim here is for this to be easy to follow if you've never seen a line of Haskell in your life.  If anything, I'd like to leave you with an understanding of how to think about a typed pure functional program, which can apply in all sorts of different languages.  Haskell is really great at making you learn how to do it right by not even compiling unless you have, and I'd recommend at least playing with it to any programmer.
+My aim here is for this to be easy to follow if you've never seen a line of Haskell in your life.  If anything, I'd like to leave you with an understanding of how to think about a typed pure functional program, which can apply in all sorts of different languages.  Haskell is really great at making you learn how to do it right by not even compiling unless you have, and I'd recommend at least playing with it to any programmer.  In the course of untangling this program, I'm going to get down and dirty with just enough Haskell goodness to explain the code I have - no further, but I'm not going to try to gloss over tricky concepts.  This is a simple end goal, but it's gonna get a little conceptual so get ready to think a little, especially if you're new to either fucntional programming or strong type systems.
 
 As should be abundantly clear, I don't atually know Haskell.  This little thing is to date the most significant thing I've built with it.  So this post isn't really for Haskell people.  They'll likely be pissed off or appalled.  In fact, they'll surely be both.  However, if any Haskellers do read it and notice something outrageously dumb that simply cannot stand, please let me know so I can correct it!
 
@@ -87,7 +87,7 @@ IO is a monad.  This means it's a type that can have other things that are also 
 
 In Haskell, every function is a *pure* function.    If you're not familiar with the terminology, "pure" means that the function does not rely upon or act on values outside of its own body.  Put another way, the function will always return the same output for a given input because there is nothing else the output depends on.  The savvy among you might already be asking "but wait!   There are all kinds of things a function might want to do outside of itself.  How about printing a letter to the screen?"  To which Haskell says "Oh, shoot.  We hadn't thought of that.  Pack it up!"  Good post everyone.
 
-...Hah!  Got you, didn't I.  The Haskell solution for this little technicality of actually having to be useful has to do with the types that I raved about a bit ago.  I read this as "IO Unit".  The first part means it's of type IO, so it does something with IO.  But this is Haskell, and we need to know what *type* this function returns so that we can use it within our typed functional program (spoiler alert: specifically other monads).  Our compiler is just doing it's happy ol' thing evaluating values, we've got o keep the computation a''rolling! .  "Doing IO" isn't a type, so Haskell has something called the IO Monad.  For this program right now what you need to know is that an IO monad like `main` will do something with IO but also evaluates to something.  The `Monad` is a way of encapsulating that idea -  whatever it does will happen inside of it and then you get this second type back. Monads turn out to be a great way to compose functionality especially where stuff gets messy, like responding to input from the user in a language that only allows pure functions.  Don't worry if I lost you here, really.  For our use here, the IO Monad is the slightly confusing type of "doing IO".  That "something" it carries is the second term.  For `main`, we don't have anythi, so we return `()`, the empty tuple.  Putting them together, we have our type `IO ()`.  This is akin to `void` in C, or, well, `unit | ()` in a bunch of diferent languages.  Zilch.
+...Hah!  Got you, didn't I.  The Haskell solution for this little technicality of actually having to be useful has to do with the types that I raved about a bit ago.  I read this as "IO Unit".  The first part means it's of type IO, so it does something with IO.  But this is Haskell, and we need to know what *type* this function returns so that we can use it within our typed functional program (spoiler alert: specifically other monads).  Our compiler is just doing it's happy ol' thing evaluating values, we've got o keep the computation a''rolling! .  "Doing IO" isn't a type, so Haskell has something called the IO Monad.  For this program right now what you need to know is that an IO monad like `main` will do something with IO but also evaluates to something.  The `Monad` is a way of encapsulating that idea -  whatever it does will happen inside of it and then you get this second type back. A monad can be thought of as an "action" or "computation".  It isn't the fucntion itself, it's just the concept of carrying out that action.  It's a noun through and through, just a "thing" we can pass around in our program, but it's a little weird so don't worry if that's not sitting well with you yet.  Monads turn out to be a great way to compose functionality especially where stuff gets messy, like responding to input from the user in a language that only allows pure functions.  Don't worry if I lost you here, really.  For our use here, the IO Monad is the slightly confusing type of "doing IO".  That "something" it carries is the second term.  For `main`, we don't have anything, so we return `()`, the empty tuple.  Putting them together, we have our type `IO ()`.  This is akin to `void` in C, or, well, `unit | ()` in a bunch of diferent languages.  Zilch.
 
 For a blitz Monad/etc. run-through with pictures, [this](http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html) will get you up to speed surprisingly quickly, from the author of ["Grokking algorithms"](http://a.co/ba5icnv).
 
@@ -168,7 +168,7 @@ gameOver board@(Board b) =
     exitSuccess
 ```
 
-Well, that type signature should be getting repetitive.  This is another one that takes a `Board`, does some sort of IO, and doesn't pass anything back to the caller.  The token soup in the second line is just destructuruing syntax - remembering that our `Board` is the only argument, all `board@(Board b)` does is allows us to refer to both the whole structure as `board` as well as specifically the inside list of cells as `b`.  The body of this function is straightforward to read.  `when ( all isJust b)` we're going to `do` something.  `when` is another thing we imported from `Control.Monad`, but it's also not scary and does what you'd expect - checks the predicate and enters the block if true.  Remember that each one off the nine cells is a type of `Maybe Player`, and a `Maybe T` can be either `Just T` or `Nothing`.  `isJust` is a helper predicate from `Data.Maybe` (imported, like a fine wine) that returns true if what was passed in is the `Just` variet of `Maybe`.  We passed it along with our list of cells `b` into `all`, which is like a big ol' `AND` - it returns the false the first time it hits a false, or is true.  So when every cell has a player in it, `gameOver` will notice that it's time to pack it up and end the game.  Specifically, it will show you the board with `print` (details below) and tell you the game was a draw with `putStrLn`.  These only work in an IO Monad, and finally justify all that hullaballoo about monads before we could dive in!  Remembering that `do` is secretly chaining together its children with a `then`, this ends up looking a lot like your garden variety imperative, impure stuff, but never breaks any rules to do so.  It's all one big IO monad built from the inner results of calling each of these functions, which themselves return IO monads making it all work.  That's why `main` has to be an IO monad as well even though it doesn't perform any IO explicitly - it's built from functions that do.  When the printing is over, we just `exitSuccess`, terminating the program with status code 0.
+Well, that type signature should be getting repetitive.  This is another one that takes a `Board`, does some sort of IO, and doesn't pass anything back to the caller.  The token soup in the second line is just destructuruing syntax - remembering that our `Board` is the only argument, all `board@(Board b)` does is allows us to refer to both the whole structure as `board` as well as specifically the inside list of cells as `b`.  The body of this function is straightforward to read.  `when ( all isJust b)` we're going to `do` something.  `when` is another thing we imported from `Control.Monad`, but it's also not scary and does what you'd expect - checks the predicate and enters the block if true.  Remember that each one off the nine cells is a type of `Maybe Player`, and a `Maybe a` can be either `Just a` or `Nothing`, using `a` as a stand-in for any type.  `isJust` is a helper predicate from `Data.Maybe` (imported, like a fine wine) that returns true if what was passed in is the `Just` variet of `Maybe`.  We passed it along with our list of cells `b` into `all`, which is like a big ol' `AND` - it returns the false the first time it hits a false, or is true.  So when every cell has a player in it, `gameOver` will notice that it's time to pack it up and end the game.  Specifically, it will show you the board with `print` (details below) and tell you the game was a draw with `putStrLn`.  These only work in an IO Monad, and finally justify all that hullaballoo about monads before we could dive in!  Remembering that `do` is secretly chaining together its children with a `then`, this ends up looking a lot like your garden variety imperative, impure stuff, but never breaks any rules to do so.  It's all one big IO monad built from the inner results of calling each of these functions, which themselves return IO monads making it all work.  That's why `main` has to be an IO monad as well even though it doesn't perform any IO explicitly - it's built from functions that do.  When the printing is over, we just `exitSuccess`, terminating the program with status code 0.
 
 So `gameOver` just makes sure there's still a game to play on the board before diving in and trying to run a turn.  If we're done, the whole quits, and if not it doesn't do or return anything so `runGame` can progress.  We've just begun our journey, so when we passed in the `Board`, `all` was most defintiely not `isJust`.  Moving on, what does a run of the game loop look like?
 
@@ -186,7 +186,72 @@ instance Show Board where
     where spaceEachThird a = (++) (bool (snd a) (snd a ++ "\n") (fst a `rem` 3 == 0))
 ```
 
-Oh boy.  This should be good.  Lets tease this apart.  TODO
+My god, Ben, what have you written.  This should be good.  Lets tease this apart.  That first list just says we're defining what `Show` should do for `Board`.  So every time a caller needs to `Show` a board, it will come here and evaluate what's inside.
+
+To define a typeclass instance, you need to define the functions the typeclass requires.  `Show` is an easy one to define - there's just the one, `show a`, where in this case `a` will be `Board`.  And as you'd expect, we can see the left half of the definition agrees: this function will `show (Board cs)`, so if we pass in ur `Board` newtype, `cs` will refer to the list of cells inside.
+
+Luckily, Past Ben seems to have golfed this one, the bastard.  No comments or anything.  To be fair, I don't think Past Ben expected Present Ben (Future Ben?) to write this post, ansd Haskell is a lot of fun to golf.  No matter.  That first function, `foldr`, gives me an idea what I'm getting at already.  Lets talk about folding.
+
+So, this whole time we've been talking about Haskell is *functional* and not *imperative* - the unit of computation is the function, and you construct computations by composing functions.  However, I immedaitely threw that `do` thing at you which does kinda-sorta let you code imperatively, but that's still just a special syntax for describing a purely functional set of computations.  We're going to run in to a problem if we want to, say, perform the same action on a list of things.  Which is exactly what needs to happen.
+
+In a C-style language, to solve this problem of printing each cell to the screen, you'd iterate over the cells with something like a `for` loop.  In Haskell, ther'es no such thing.  A loop isn't a function or a value, and that's our whole toolbox.  But we still have to solve this problem.  Luckily Haskell provides a rich set of tools for approaching this type of problem functionally using *recursion*, and the `fold` operation is a building block that makes this easier than writing it out by hand.
+
+By the way, this whole bit is not at all Haskell specific.  Recursion and folds will show up in all sorts of places, Haskell just happens to be an excellent evirnoment for really getting familiar with how to build them.
+
+#### A Digression on `foldr`
+
+The way we take a collection values and make sure we do something with every member of the collection is to consume the collection recursively.  That is, we're going to pass our whole collection into some sort of function which is going to do some sort of processing.  At the end of the function, it's going to call itself again, just with a smaller part of the list - the part we haven't processed.  It will do this again and again, just calling itself with smaller and smallr parts of the collection, until the whole thing is processed.  Easy peasy.  A `fold` is a specific type of recursive function that takes in a data structure, a collection of some type, and a function to use for each member.  It eventually yields just one single value - the eventual result of calling that function on the member and the result of all the previous runs through our recursive function.  The `reduce` operation is a special case of a `fold`, if you've come cross that in, say, JavaScript of Python.
+
+Types are one thing that are at least for me more confusing in english.  If looking at types helps you out, here's the type signature for `foldr`:
+
+
+```haskell
+foldr :: (a -> r -> r) -> r -> [a] -> r
+```
+
+It's fine if you stared blankly at that, that's usually step one of unravelling a type signature.  They all work the same way, though, so we can tease it apart slowly.  We know this is a function that takes three arguments, because eveything eveluates to one value in the end - so the compiler will expect three bits of information while processing this to get to that final `r`.  The second unknown type is conventially shown with a `b` - I'm using `r` to indicate it's our return type.  It doesn't matter what type - it could be anything.  It could even be another `a`, and often is, but it doesn't *have* to be so we use a different letter.
+
+The first thing is our processing function, with signature `a -> r -> r`.  This itself is a function, which takes two arguments, by the same logic as above.  It takes in a single element of our `[a]`, that is, list of `a` types, and some value of the type that we're returning, and returns a new return type.  When you pass in one cell of our `Board`, this function will give back the next accumulated result.  The next argument is a single instance of that return type - the "destination" so to speak.  We know we're going to be getting a single value from this fold, and we have a function that takes a cell and our current running result and gives us back the new result, so we can drop that cell from the next run through the recursion.  But the fir
+
+If this all was too abstract, here's a simple example that might look more familiar - let's fold some basic addition into a collection:
+
+```haskell
+nums :: [Int]
+nums = [1, 2, 3, 4, 5]
+
+addEmUp ns :: [a] -> r
+addEmUp ns = foldr (+) 0 ns
+```
+
+That's a lot less noisy.  In this example, calling `addEmUp nums` will yield `15:: Int`.  First, I defined a list of `Int`s called `nums`.  Then I created a function `addEmUp` which is really just an alias for a specific `fold` - notice how it doesn't do anything else, just specifies which arguments to use with the fold.  That's why the type signature for `addEmUp` is a lot simpler - it only takes the `[a]` collection, in this case `nums`.  So our `a` is `Int`.  The first argument, the prosessor, is `(+)` - just the addition operator.  Operators are functions, and this one takes in two values and produces a third.  Let's compare to our expected tpe: `a -> r -> r`.  Well, in this case, `a` is `Int`, and also we want an `Int` at the end, so we can substitute it in for `r` too.  Ifyou add an `Int` to an `Int`, lo and behold, an `Int` will pop out.  So our processor, addition, has type `Int -> Int -> Int`, which fits!  Remember, it's totally fine if `a` and `r` or any two unspecified types are the same, we just note that they don't *have* to be.
+
+Our second argument was just a `0` - an `Int`.  We just decided that's a perfectly fine `r` type, so the second argument makes sense, and that just leaves us with `[a]`.  Thanksfully we've left that part of the type intact, and are passing it in!  So for this simple example, the fully qualified type of this `fold` reads: `(Int -> Int -> Int) -> Int -> [Int] -> Int`.  Just a bunch of `Int`s.
+
+When Haskell goes to evaluate it, it will start with the full collection.  When we get to the first run through, the processor will grab the first cell, and then look for our accumulated result.  We haven't done anything yet, so it's just `0` - we told it that in the second argument.  The first value is `1`, so our accumulator added to our base value is `1`.  Then, we recur!  Only this time we've already processed the one, so we're calling this same function again but a little different:
+
+```haskell
+foldr (+) 1 [2, 3, 4, 5]
+```
+
+See what happened there?  We processed the one and dropped it, so our collection got shorter and we have a running total.  Expanding:
+
+```haskell
+foldr (+) 3 [3, 4, 5]
+foldr (+) 6 [4, 5]
+foldr (+) 10 [5]
+foldr (+) 15 []
+```
+
+When a recursive function tried to recur on an empty list, it knows it's done and returns the final value - in this case `15`.  We've managed to iterate without looping!  We were able to reuse the same exact function over and over again, only changing what we pass in pased on the output of the previous run.  Recursion, yo.
+
+As an aside, this example could have been rewritten: `addEmUp = foldr (+) 0` - if the argument is the final term in the definition and the argument list, it can be dropped.  The compiler instead sees this definition as a curried function expecting one more value, and if it gets called with that value, it will fully evaluate the expression.
+
+#### Back to `Show`
+
+That digression got away from me, but now we're armed to dive in to this bigger, messier fold.  We know its going to do the same basic type of thing as `addEmUp`.
+
+
+### Footnotes
 
 [1] I hesitated to say [Great Good](http://learnyouahaskell.com/) because that's pretty wishful thinking in my case - Hopefully Not For Nothing is more accurate.  This is a great book nonetheless
 
