@@ -319,9 +319,32 @@ else putStrLn "1-9 only please"
 
 The first thing to check is whether or not the single character we now know we have is a valid play or not - it must be a digit from 1 to 9, not a letter or a bit of punctuation or anything.  The first line defines this predicate using the `elem` function, which checks if the first operand of type `a` (anything) is an element of the second.  Most functions in haskell are *prefix* in that the function names come first followed by the arguments.  To use a function of two arguments more like an *infix* operator between two operands, you can wrap it in backticks.
 
-This predicate is asking if our char input is a digit from 1 to 9, and employs a few little tricks to do so.  We can't simply ask if `"1" == 1` (lookin' at you, JavaScript) because one is a character and the other is an integer.  So first we need to get a list `["1", "2", "3", "4", "5", "6", "7", "8", "9"]`.  A quick way to build this array is our good friend `show` - if you recall, this is how we convert a type into something we can print out on the screen.  In the case of an Integer, this means turning it into a char representation first to send to stdout.  We can `map` the `show` function over a list `[1..9]` and it will perform that conversion for us for every element.  We're using the range operator `..` to construct our list, and by tagging the first element `i::Integer` we ensure each element we're mapping `show` over is an integer to begin with.  Pretty handy!
+This predicate is asking if our char input is a digit from 1 to 9, and employs a few little tricks to do so.  We can't simply ask if `"1" == 1` (lookin' at you, JavaScript) because one is a character and the other is an integer.  So first we need to get a list `["1", "2", "3", "4", "5", "6", "7", "8", "9"]`.  A quick way to build this array is our good friend `show` - if you recall, this is how we convert a type into something we can print out on the screen.  In the case of an Integer, this means turning it into a char representation first to send to stdout.  We can `map` the `show` function over a list `[1..9]` and it will perform that conversion for us for every element.  We're using the range operator `..` to construct our list, and by tagging the first element `1::Integer` we ensure each element we're mapping `show` over is an integer to begin with.  Pretty handy!
 
-LINE 82
+So, with the predicate out of the way, we've now determined whether or not the input stored in `n` is a single digit.  Our else statement looks like the previous - print out a quick error telling the user how exactly they were dumb, and that's it - head back on up to the top of `runGame` and hope this chucklehead learn their lesson.  If it was a digit, however, we can move on to one final nested `if`:
+
+```haskell
+ then do
+          let n' = digitToInt c
+          if openCell board n'
+          then handleInput board n' >>= compTurn >>= runGame
+          else putStrLn "That's taken!"
+```
+
+I included the top `then` line to show that we open a new `do` block - `then do` isn't a special syntax, it's just a `do` inside a `then` :)
+
+First, we grab a local binding of the integer version of our input `c` - BEN SHOULD YOU JUST USE `show` HERE FOR CONTINUITY? - and store it as `n'`.  Then we have one final predicate - before we can go thrusting the play's move onto the board, the Laws of TicTacToe state that you can only make a move on a square if it's empty.  No playing on top of each other!  Here's `openCell`:
+
+```haskell
+openCell :: Board -> Int -> Bool
+openCell (Board b) n = isNothing $ b !! (n - 1)
+```
+
+So, this is a function that takes two arguments, and `Board` nad an integer, and returns a boolean like a predicate should.  We're going to pass in the full board and a specific square, and `openCell` will tell us if the space is already occupied.  In some languages it's good style to name predicates like this something that's obviously a predicate, like with a `?` at the end or a `_p` or something.  TODO LOOK UP HASKELL STYLE GUIDE.
+
+Thanks to Haskell's terseness, this looks more complicated than it is at first glance.  We've seen `$` before - it's function application.  The other funky operator is `!!` - this is just a list subscript.  In a more C-like language, we might have written this exact logic something like `isNothing(b[n - 1])`.  That is, we're asking for the `n - 1`th element of our inner board list `b` (named so via destructuring in the definition: `(Board b)`), and passing it to `isNothing`.  `isNothing` we brought in at the top from `Data.Maybe` and itself is just a predicate which is true if the `Maybe a` passed in is a `Nothing`, as opposed to a `Just a`.
+
+We initialized our board to a list of `Nothing`s, so the first time through this loop, any digit we pass in is going to come up clear.
 
 ### Footnotes
 
