@@ -225,7 +225,7 @@ addEmUp ns :: [a] -> r
 addEmUp ns = foldr (+) 0 ns
 ```
 
-That's a lot less noisy.  In this example, calling `addEmUp nums` will yield `15:: Int`.  First, I defined a `[Int]`, that is, a list of `Int`s, called `nums`.  Then I created a function `addEmUp` which is really just an alias for a specific `fold` - notice how it doesn't do anything else, just specifies which arguments to use with the fold.  That's why the type signature for `addEmUp` is a lot simpler - it only takes the `[a]` collection, in this case `nums`.  So our `a` is `Int`.  The first argument, the prosessor, is `(+)` - just the addition operator.  Operators are functions, and this one takes in two values and produces a third.  Let's compare to our expected tpe: `a -> r -> r`.  Well, in this case, `a` is `Int`, and also we want an `Int` at the end, so we can substitute it in for `r` too.  If you add an `Int` to an `Int`, lo and behold, an `Int` will pop out.  So our processor, addition, has type `Int -> Int -> Int`, which fits!  Remember, it's totally fine if `a` and `r` or any two unspecified types are the same, we just note that they don't *have* to be.
+That's a lot less noisy.  In this example, calling `addEmUp nums` will yield `15 :: Int`.  First, I defined a `[Int]`, that is, a list of `Int`s, called `nums`.  Then I created a function `addEmUp` which is really just an alias for a specific `fold` - notice how it doesn't do anything else, just specifies which arguments to use with the fold.  That's why the type signature for `addEmUp` is a lot simpler - it only takes the `[a]` collection, in this case `nums`.  So our `a` is `Int`.  The first argument, the prosessor, is `(+)` - just the addition operator.  Operators are functions, and this one takes in two values and produces a third.  Let's compare to our expected tpe: `a -> r -> r`.  Well, in this case, `a` is `Int`, and also we want an `Int` at the end, so we can substitute it in for `r` too.  If you add an `Int` to an `Int`, lo and behold, an `Int` will pop out.  So our processor, addition, has type `Int -> Int -> Int`, which fits!  Remember, it's totally fine if `a` and `r` or any two unspecified types are the same, we just note that they don't *have* to be.
 
 Our second argument was just a `0` - an `Int`.  We just decided that's a perfectly fine `r` type, so the second argument makes sense as an initializer for our return type, and that just leaves us with `[a]`.  Thankfully we've left that part of the type intact, and are passing it in!  So for this simple example, the fully qualified type of this `foldr` reads: `(Int -> Int -> Int) -> Int -> [Int] -> Int`.  Just a bunch of `Int`s.
 
@@ -272,15 +272,56 @@ The `where` just means we're defining `spaceEachThird` locally for this function
 
 Anyway, `spaceEachThird` has been defined as taking a single argument, `a`.  In this case, `a` is going to be our current cell - conveniently it matches what we've been using as a stand-in type.  We know the processor acts on two input values, and the other one is our accumulator, so in our definition it's going to look like we're missing an argument.  It's going to be the accumulator.
 
-The first part of the definition is `(++)` is concatenation.  There's a clue to where our other type goes - we're going to have whatever we're doingwith `a`, the active cell, on one side, and it's going to get concatenated to the accumulator.  That makes sense - it's kind of like adding an `Int` to the accumulator.  The accumulator will now hold information from both operands.  What on earth are we adding, though?
+The first part of the definition is `(++)` is concatenation.  There's a clue to where our other type goes - we're going to have whatever we're doing with `a`, the active cell, on one side, and it's going to get concatenated to the accumulator.  That makes sense - it's kind of like adding an `Int` to the accumulator.  The accumulator will now hold information from both operands.  What on earth are we adding, though?
 
 I've grabbed the `bool` function from `Data.Bool` and it's really just some control flow.
 
 TODO COME BACK WHEN YOU UNDERSTAND YOUR CODE
 
-### Beyond `Show`
+### Gathering Input
 
+Whew!  That `print board` line turned out to be a little intense.  Luckily, the beauty of programming is that we've only gotta tell it how once, right?  The next order of business is going to be asking the player where they'd like to play.  The next two lines are familiar enough:
 
+```haskell
+putStr "Your move: "
+hFlush stdout
+```
+
+`putStr` is going to simply send its input to stdout, and `hFlush` flushs the stdout buffer (ensuring the full string is printed out) before advancing to the next instruction.
+
+Immediately following, we've got `n <- getLine`.  This just says we should wait for stdin, and when we get a `\n`, store the contents of the line entered to a local binding `n`.  We can do this inside of our `do` block so that the value passed in is available to the rest of the function.  As soon as the user enters a line of text and hits enter, we'll move on.
+
+Now we get to the big `case` statement of `runGame`.  This is where we appropriately dispatch an action based on what the user entered.  This control flow construct is not at all dissimilar to a `switch` in other languages - more similar to a `match`, actually, in terms of expressive power.  We're going to match the value we just received from the user against a few patterns to see how to handle it.
+
+We'll start with the outer layer:
+```haskell
+case n of
+    [c] ->
+      // do some really awesome stuff with our single char
+    _   -> putStrLn "Only one digit allowed!"
+```
+
+This syntax just checks if our input `n` consists of a single character.  TODO EXPLAIN THIS A LITTLE BETTER.  If it does, we'll keep it and do stuff, and if not we'll lightly admonish the idiot at the keyboard with a `putStrLn` call - this is a `putStr` that includes a trailing newline.  I mean, honestly, don't you know how to play TicTacToe?   This is the last line of our function - but it's all wrapped up in a `forever`, so if that does happen we'll just take it again from the top of `runGame` until the user gives us something we can work with.  Should I have optimized away the extra `gameOver` check in this case?  Most definitely.  Will I?  Highly unlikely.
+
+If, however, the user complied and only passed in a single character, we still have a little work to do:
+
+```haskell
+if [c] `elem` map show [(1::Integer)..9]
+then do
+    let n' = digitToInt c
+    if openCell board n'
+    then handleInput board n' >>= compTurn >>= runGame
+    else putStrLn "That's taken!"
+else putStrLn "1-9 only please"
+```
+
+`if` in Haskell works more or less how you might expect, with the caveat that it's an *expression*, not a *statement* - that is, the entire `if` block must reduce to a value.  You cannot have an `if` without an `else`.  Aside from that, though, it's as expected - you pass in a predicate and if that predicate evaluates to `true`, we'll execute the `then` block, and if not, we'll use `else`.  If you have more than two cases, I recommend `case` over `if`.
+
+The first thing to check is whether or not the single character we now know we have is a valid play or not - it must be a digit from 1 to 9, not a letter or a bit of punctuation or anything.  The first line defines this predicate using the `elem` function, which checks if the first operand of type `a` (anything) is an element of the second.  Most functions in haskell are *prefix* in that the function names come first followed by the arguments.  To use a function of two arguments more like an *infix* operator between two operands, you can wrap it in backticks.
+
+This predicate is asking if our char input is a digit from 1 to 9, and employs a few little tricks to do so.  We can't simply ask if `"1" == 1` (lookin' at you, JavaScript) because one is a character and the other is an integer.  So first we need to get a list `["1", "2", "3", "4", "5", "6", "7", "8", "9"]`.  A quick way to build this array is our good friend `show` - if you recall, this is how we convert a type into something we can print out on the screen.  In the case of an Integer, this means turning it into a char representation first to send to stdout.  We can `map` the `show` function over a list `[1..9]` and it will perform that conversion for us for every element.  We're using the range operator `..` to construct our list, and by tagging the first element `i::Integer` we ensure each element we're mapping `show` over is an integer to begin with.  Pretty handy!
+
+LINE 82
 
 ### Footnotes
 
@@ -294,4 +335,4 @@ TODO COME BACK WHEN YOU UNDERSTAND YOUR CODE
 
 [5] Haskell [Prelude](https://hackage.haskell.org/package/base-4.11.1.0/docs/Prelude.html#v:-36-)
 
-[6] We know it's an `IO ()` because we're inside a `do` block in an `IO ()`, it performs IO of its own, and it doesn't have any value coming back up.  It just exists to print the value to the console.  So when the compiler comes hungrily munchng through `runGame`, `print` just evaluates to `()`.
+[6] We know it's an `IO ()` because we're inside a `do` block in an `IO ()`, it performs IO of its own, and it doesn't have any value coming back up.  It just exists to print the value to the console.  So when the compiler comes hungrily munching through `runGame`, `print` just evaluates to `()`.
