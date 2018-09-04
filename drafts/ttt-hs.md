@@ -202,7 +202,7 @@ By the way, this whole bit is not at all Haskell specific.  Recursion and folds 
 
 #### A Digression on `foldr`
 
-The way we take a collection values and make sure we do something with every member of the collection is to consume the collection recursively.  That is, we're going to pass our whole collection into some sort of function which is going to do some sort of processing.  At the end of the function, it's going to call itself again, just with a smaller part of the list - the part we haven't processed.  It will do this again and again, just calling itself with smaller and smallr parts of the collection, until the whole thing is processed.  Easy peasy.  A `fold` is a specific type of recursive function that takes in a data structure, a collection of some type, and a function to use for each member.  It eventually yields just one single value - the eventual result of calling that function on the member and the result of all the previous runs through our recursive function.  The `reduce` operation is a special case of a `fold`, if you've come cross that in, say, JavaScript of Python.
+The way we take a collection values and make sure we do something with every member of the collection is to consume the collection recursively.  That is, we're going to pass our whole collection into some sort of function which is going to do some sort of processing.  At the end of the function, it's going to call itself again, just with a smaller part of the list - the part we haven't processed.  It will do this again and again, just calling itself with smaller and smallr parts of the collection, until the whole thing is processed.  Easy peasy.  A `fold` is a specific type of recursive function that takes in a data structure, a collection of some type, and a function to use for each member.  It eventually yields just one single value - the eventual result of calling that function on the member and the result of all the previous runs through our recursive function.  The `reduce` operation is a special case of a `fold`, if you've come cross that in, say, JavaScript or Python.
 
 Types are one thing that are at least for me more confusing in english.  If looking at types helps you out, here's the type signature for `foldr`:
 
@@ -211,9 +211,9 @@ Types are one thing that are at least for me more confusing in english.  If look
 foldr :: (a -> r -> r) -> r -> [a] -> r
 ```
 
-It's fine if you stared blankly at that, that's usually step one of unravelling a type signature.  They all work the same way, though, so we can tease it apart slowly.  We know this is a function that takes three arguments, because eveything eveluates to one value in the end - so the compiler will expect three bits of information while processing this to get to that final `r`.  The second unknown type is conventially shown with a `b` - I'm using `r` to indicate it's our return type.  It doesn't matter what type - it could be anything.  It could even be another `a`, and often is, but it doesn't *have* to be so we use a different letter.
+It's fine if you stared blankly at that, that's usually step one of unravelling a type signature.  They all work the same way, though, so we can tease it apart slowly.  We know this is a function that takes three arguments, because eveything evaluates to one value in the end - so the compiler will expect three bits of information while processing this to get to that final `r`.  The second unknown type is conventionally shown with a `b` - I'm using `r` to indicate it's our return type.  It doesn't matter what type - it could be anything.  It could even be another `a`, and often is, but it doesn't *have* to be so we use a different letter.
 
-The first thing is our processing function, with signature `a -> r -> r`.  This itself is a function, which takes two arguments, by the same logic as above.  It takes in a single element of our `[a]`, that is, list of `a` types, and some value of the type that we're returning, and returns a new return type.  When you pass in one cell of our `Board`, this function will give back the next accumulated result.  The next argument is a single instance of that return type - the "destination" so to speak.  We know we're going to be getting a single value from this fold, and we have a function that takes a cell and our current running result and gives us back the new result, so we can drop that cell from the next run through the recursion.  But the fir
+The first thing is our processing function, with signature `a -> r -> r`.  This itself is a function, which takes two arguments, by the same logic as above.  It takes in a single element of our `[a]`, that is, list of `a` types, and some value of the type that we're returning, and returns a new return type.  When you pass in one cell of our `Board`, this function will give back the next accumulated result.  The next argument is a single instance of that return type - the "destination" so to speak.  We know we're going to be getting a single value from this fold, and we have a function that takes a cell and our current running result and gives us back the new result, so we can drop that cell from the next run through the recursion.  But the firrst run through, we need somewhere to deposit the result of the computation - so `foldr` asks for a container as the second argument of type `r` to apply the result to.  This initial value we pass in is going to be transformed every run through the function and is eventually what gets returned.
 
 If this all was too abstract, here's a simple example that might look more familiar - let's fold some basic addition into a collection:
 
@@ -225,13 +225,14 @@ addEmUp ns :: [a] -> r
 addEmUp ns = foldr (+) 0 ns
 ```
 
-That's a lot less noisy.  In this example, calling `addEmUp nums` will yield `15:: Int`.  First, I defined a list of `Int`s called `nums`.  Then I created a function `addEmUp` which is really just an alias for a specific `fold` - notice how it doesn't do anything else, just specifies which arguments to use with the fold.  That's why the type signature for `addEmUp` is a lot simpler - it only takes the `[a]` collection, in this case `nums`.  So our `a` is `Int`.  The first argument, the prosessor, is `(+)` - just the addition operator.  Operators are functions, and this one takes in two values and produces a third.  Let's compare to our expected tpe: `a -> r -> r`.  Well, in this case, `a` is `Int`, and also we want an `Int` at the end, so we can substitute it in for `r` too.  Ifyou add an `Int` to an `Int`, lo and behold, an `Int` will pop out.  So our processor, addition, has type `Int -> Int -> Int`, which fits!  Remember, it's totally fine if `a` and `r` or any two unspecified types are the same, we just note that they don't *have* to be.
+That's a lot less noisy.  In this example, calling `addEmUp nums` will yield `15:: Int`.  First, I defined a `[Int]`, that is, a list of `Int`s, called `nums`.  Then I created a function `addEmUp` which is really just an alias for a specific `fold` - notice how it doesn't do anything else, just specifies which arguments to use with the fold.  That's why the type signature for `addEmUp` is a lot simpler - it only takes the `[a]` collection, in this case `nums`.  So our `a` is `Int`.  The first argument, the prosessor, is `(+)` - just the addition operator.  Operators are functions, and this one takes in two values and produces a third.  Let's compare to our expected tpe: `a -> r -> r`.  Well, in this case, `a` is `Int`, and also we want an `Int` at the end, so we can substitute it in for `r` too.  If you add an `Int` to an `Int`, lo and behold, an `Int` will pop out.  So our processor, addition, has type `Int -> Int -> Int`, which fits!  Remember, it's totally fine if `a` and `r` or any two unspecified types are the same, we just note that they don't *have* to be.
 
-Our second argument was just a `0` - an `Int`.  We just decided that's a perfectly fine `r` type, so the second argument makes sense, and that just leaves us with `[a]`.  Thanksfully we've left that part of the type intact, and are passing it in!  So for this simple example, the fully qualified type of this `fold` reads: `(Int -> Int -> Int) -> Int -> [Int] -> Int`.  Just a bunch of `Int`s.
+Our second argument was just a `0` - an `Int`.  We just decided that's a perfectly fine `r` type, so the second argument makes sense as an initializer for our return type, and that just leaves us with `[a]`.  Thankfully we've left that part of the type intact, and are passing it in!  So for this simple example, the fully qualified type of this `foldr` reads: `(Int -> Int -> Int) -> Int -> [Int] -> Int`.  Just a bunch of `Int`s.
 
 When Haskell goes to evaluate it, it will start with the full collection.  When we get to the first run through, the processor will grab the first cell, and then look for our accumulated result.  We haven't done anything yet, so it's just `0` - we told it that in the second argument.  The first value is `1`, so our accumulator added to our base value is `1`.  Then, we recur!  Only this time we've already processed the one, so we're calling this same function again but a little different:
 
 ```haskell
+foldr (+) 0 [1, 2, 3, 4, 5]
 foldr (+) 1 [2, 3, 4, 5]
 ```
 
@@ -247,7 +248,9 @@ See what happened there?  We processed the one and dropped it, so our collection
 
 When a recursive function tries to recur on an empty list, it knows it's done and returns the final value - in this case `15`.  We've managed to iterate without looping!  We were able to reuse the same exact function over and over again, only changing what we pass in based on the output of the previous run.  Recursion, yo.
 
-As an aside, this example could have been rewritten: `addEmUp = foldr (+) 0` - if the argument is the final term in the definition and the argument list, it can be dropped.  The compiler instead sees this definition as a curried function expecting one more value, and if it gets called with that value, it will fully evaluate the expression.
+If this sounds outrageously inefficient, calling loads and loads of functions all the time with very similar values, you're correct.  Haskell performs something called "[tail-call](https://en.wikipedia.org/wiki/Tail_call) optimization", which I won't detail here but essentially means that instead of allocating a new stack frame for each successive call, it's able to reuse the same stack frame and substitute the new vals, and then just jump execution back up.  If you're not familiar with stack frames, we're getting way beyond the scope of this post - it's not required knowledge here but interesting in general and important to understand if you'd like to use a functional language in anger, so I recommend you do some poking around!
+
+As an aside, this example could have been rewritten: `addEmUp = foldr (+) 0` - if the argument is the final term in the definition and the argument list, it can be dropped.  This process is known as an [eta-reduction](https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B7-conversion) in the lambda calculus lingo.  The compiler instead sees this definition as a curried function expecting one more value, and if it gets called with that value, it will fully evaluate the expression.
 
 #### Back to `Show`
 
@@ -272,6 +275,12 @@ Anyway, `spaceEachThird` has been defined as taking a single argument, `a`.  In 
 The first part of the definition is `(++)` is concatenation.  There's a clue to where our other type goes - we're going to have whatever we're doingwith `a`, the active cell, on one side, and it's going to get concatenated to the accumulator.  That makes sense - it's kind of like adding an `Int` to the accumulator.  The accumulator will now hold information from both operands.  What on earth are we adding, though?
 
 I've grabbed the `bool` function from `Data.Bool` and it's really just some control flow.
+
+TODO COME BACK WHEN YOU UNDERSTAND YOUR CODE
+
+### Beyond `Show`
+
+
 
 ### Footnotes
 
