@@ -13,7 +13,7 @@ As opposed to a traditional tutorial, this is top-down, entry-point first, let's
 
 My aim here is for this to be easy to follow if you've never seen a line of Haskell in your life, but in the course of untangling this program, I'm going to get down and dirty with just enough Haskell goodness to explain why the code I have is the way it is.  I won't go very deep into anything, but I'm not going to try to gloss over tricky concepts.  This game is a very simple end goal, but it's gonna have to get a little conceptual here and there so get ready to think some, especially if you're new to either functional programming or strong type systems.
 
-if any Haskellers do read this and notice something outrageously dumb that simply cannot stand, please let me know so I can correct it!  I'm going for pared down and simplified for the domain, not dead wrong.
+If any Haskellers do read this and notice something outrageously dumb that simply cannot stand, please let me know so I can correct it!  I'm going for pared down and simplified for the domain, not dead wrong.
 
 I will say that if you've never programmed before, this might be hard to read and boring, not necessarily in that order.  How'd you even end up here?  Not that it's a bad thing, by all means, learn you some programmin', it's the best, but this random blogpost is probably not where you should start.  I assume familiarity with programming concepts in a general sense like loops and control flow.
 
@@ -299,7 +299,8 @@ We'll start with the outer layer:
 ```haskell
 case n of
     [c] ->
-      // do some really awesome stuff with our single char
+      -- do some really awesome stuff with our single char
+      -- ...
     _   -> putStrLn "Only one digit allowed!"
 ```
 
@@ -310,10 +311,8 @@ If, however, the user complied and only passed in a single character, we still h
 ```haskell
 if [c] `elem` map show [(1::Integer)..9]
 then do
-    let n' = digitToInt c
-    if openCell board n'
-    then handleInput board n' >>= compTurn >>= runGame
-    else putStrLn "That's taken!"
+  -- We've got us a digit!  Do some awesome stuff with it
+  -- ...
 else putStrLn "1-9 only please"
 ```
 
