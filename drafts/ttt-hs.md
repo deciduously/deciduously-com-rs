@@ -313,7 +313,7 @@ then do
 else putStrLn "1-9 only please"
 ```
 
-`if` in Haskell works more or less how you might expect, with the caveat that it's an *expression*, not a *statement* - that is, the entire `if` block must reduce to a value.  You cannot have an `if` without an `else`.  Aside from that, though, it's as expected - you pass in a predicate and if that predicate evaluates to `true`, we'll execute the `then` block, and if not, we'll use `else`.  If you have more than two cases, I recommend `case` over `if`.
+`if` in Haskell works more or less how you might expect, with the caveat that it's an *expression*, not a *statement* - that is, the entire `if` block must reduce to a value  (remember, `IO ()` counts - it's just a value of type "doing some IO" with nothing being passed back into the function).  You cannot have an `if` without an `else`.  Aside from that, though, it's as expected - you pass in a predicate and if that predicate evaluates to `true`, we'll execute the `then` block, and if not, we'll use `else`.  If you have more than two cases, I recommend `case` over `if`.
 
 The first thing to check is whether or not the single character we now know we have is a valid play or not - it must be a digit from 1 to 9, not a letter or a bit of punctuation or anything.  The first line defines this predicate using the `elem` function, which checks if the first operand of type `a` (anything) is an element of the second.  Most functions in haskell are *prefix* in that the function names come first followed by the arguments.  To use a function of two arguments more like an *infix* operator between two operands, you can wrap it in backticks.
 
