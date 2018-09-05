@@ -363,13 +363,86 @@ handleInput board n = do
   return b
 ```
 
-Just as we expected!  You're super good at this.  
+Just as expected!  You're super good at this.  In the body of the function, we're opening another `do` block, and as our first step creating a new binding `b`.  Time to finally examine `playCell`:
+
+```haskell
+playCell :: Board -> Int -> Player -> Board
+playCell (Board b) n m = Board $ take (n - 1) b ++ [Just m] ++ drop n b
+```
+
+From the function call, we expected a type like that - 3 arguments.  We also now see it will give us back a `Board` to store in `b`. The only type we haven't seen used much yet is `Player` - but we know all about that already from discussing `Board`!  It can be a `Human` or a `Computer` and nothign else, and in this case we're processing the human's input - so we just pass in `Human`.  The fully qualified type is simply `Human :: Player`.
+
+In the argument list, we've destructured the `Board` again to access the list of cells inside and assigned letters to the other two[7].
+
+Now, in a C-style language, you'd probably at first approach this task of adding a play to the board by indexing into the list and changing the value inside.  In Haskell, that's a big nope.  Remember when we discussed purity?  That would involve *changing the state of the world outside of the function* - namely the `Board`.  If we did it this way, this function of have wildly different and unpredicable results based entirely on the state of the `Board` when it was called, which is terrifying.  We cannot definitely look at that function and tell you what *exactly* it will do.  If that's not terrifying to you, it SHOULD be.  But, of course, this would be a dumb game[8] if nothing was ever allowed to change.
+
+The way we get around this restriction in any functional language, not just Haskell, is to not attempt to change anything at all.  Instead, we're just going to construct a *brand new* `Board` based on the previous one.  Haskell is garbage-collected, so the old iteration will be automatically dropped by the runtime, no need to call any sort of destructor or free the memory yourself.  That way the game as a whole can continue in a new state and we haven't broken our purity restriction.
+
+I do this using the super handy `take` and `drop` functions, which return sublists - again, these are brand new lists, leaving the input list untouched.  `take` returns the specified number of elements from the front, and `drop` returns the end of a list beginning at the index specified.  So in `playCell` I just `take` the cells up to but not including the cell specified, and at the end we'll put on the cells after the cell specified.  That only leaves the single cell in question.  Because the `Board` requires each cell to be a `Maybe Player`, we can wrap our `Human :: Player` inside a `Just`.  We then put it in brackets to make a single element list, and use `++` to concatenate all of our sublists together, and wrap the new list up in a new `Board`.  The end result is a `Board` just like the last, except the cell we passed in as an argument has a `Just Human` now instead of a `Nothing`.  Everything else is a direct copy.
+
+This way, for the same inputs we can always guarantee the same outputs.  The current state of the `Board` is passed directly into the function, which allows us to take action on it, and we know exactly what will happen given all the inputs we've got.  This makes reasoning about the flow of logic in Haskell code almost trivially easy in cases that become very convoluted otherwise.
+
+### Winners Only, Please
+
+Now that we've stored our shiny new Board with one cell updated, we've got to see how well we did.  The next line of `handleInput` calls out to `checkWin`:
+
+```haskell
+checkWin :: Board -> Player -> IO ()
+checkWin board@(Board b) m =
+  let
+    bi = withIndicesFrom 0 b
+    plays = map fst.filter ((Just m==) . snd) $ bi
+  in
+   when (foldr ((||) . flip isSubsequenceOf plays) False winStates) $ do
+     print board
+     putStrLn $ show m ++ " won!"
+     exitSuccess
+```
+
+Ok, this is a little bigger.  It's a function of two arguments returning an IO monad, which (I really hope) makes sense by now.  This monad isn't returning anything (note we havent stored this function callt o a binding, we just called it), so `IO ()` is appropriate.  This will just do some IO, and will be responsible for terminating the process if we find a win.
+
+The `let...in` syntax is a way of creating function-local bindings, not unlike `where`.  In fact, they can often be used interchangeably, and the difference is subtle: `let...in` is an expression, which can be used anywhere at all that expects an expression (kinda like `if...then...else`), whereas `where` is a syntactic construct that only come after a function body.  I'm not going to get into the subtlies, see the [Haskell Wiki](https://wiki.haskell.org/Let_vs._Where) for a more thorough discussion.
+
+Anyway, before diving into the endgame checking, we're going to set up some computed local bindings to make our life a little easier.  The first one calls a helper function:
+
+```haskell
+bi = withIndicidesFrom 0 b
+
+withIndicesFrom :: Int -> [a] -> [(Int, a)]
+withIndicesFrom n = zip [n..]
+```
+
+TODO
+
+### RNG Rover
+
+What's a game of TicTacToe without a steely-eyed, calculating oponent, ready to squelch your every plan?
+
+Well, we're not going to find out here because my computer player is real dumb and plays by dice roll.  It could be fun to try to make a smarter one - I'm leaving that as an exercise to the reader (read: too lazy to do it myself).
+
+Rewinding a little, we entered `handleInput` inside this larger clause: `handleInput board n' >>= compTurn >>= runGame`.  So far, we've updated the world state according to human input, made sure there's still a game going on, and received the new `Board` to work with.  No we're going to pass that brand new world state into `compTurn` via `>>=`, which as we discussed will allow the `Board` to be passed without losing the `IO a` context it started with.  This means we should expect `compTurn` to take a `Board` as input and, because we're in the middle of a `>>=`/`bind` chain, return an `IO Board`:
+
+```haskell
+compTurn :: Board -> IO Board
+compTurn board@(Board b) = do
+  let options = filter (isNothing.snd).withIndicesFrom 1 $ b
+  r <- randomRIO (0, length options - 1)
+  let b2 = playCell board (fst $ options !! r) Computer
+  checkWin b2 Computer
+  return b2
+```
+
+TODO
+
+### The Thrilling Conclusion
+
+Th-th-th-that's all, folks![9]
 
 ### Footnotes
 
-[1] I hesitated to say [Great Good](http://learnyouahaskell.com/) because that's pretty wishful thinking in my case - Hopefully Not For Nothing is more accurate.  This is a great book nonetheless
+TODO check yer numbers, foo'
 
-[2] Actually, I don't think Haskell is *inherently* complicated.  It's difficult to get your head around if you've used C-style imperative languages and little else.  I think Haskell might be an excellent first language.
+[1] I hesitated to say [Great Good](http://learnyouahaskell.com/) because that's pretty wishful thinking in my case - Hopefully Not For Nothing is more accurate.  This is a great book nonetheless if you're not ready to shell out $60 for the First Principles book.
 
 [3] I do not mean this figuratively
 
@@ -378,3 +451,9 @@ Just as we expected!  You're super good at this.
 [5] Haskell [Prelude](https://hackage.haskell.org/package/base-4.11.1.0/docs/Prelude.html#v:-36-)
 
 [6] We know it's an `IO ()` because we're inside a `do` block in an `IO ()`, it performs IO of its own, and it doesn't have any value coming back up.  It just exists to print the value to the console.  So when the compiler comes hungrily munching through `runGame`, `print` just evaluates to `()`.
+
+[7] This was actually one of my bigger beefs with Haskell as a beginner.  In other languages, I've gotten used to choosing descriptive (but still short) names for any bindings I create.  It seems, though, that Good Haskell Style involves lots and lots of single-letter stand-ins, which goes against every instinct I have.  I feel this inhibits readability for little gain - Haskell is terse enough as it is.  I'd be interested to hear thoughts about this for more experienced Haskellers.
+
+[8] Well, more dumb - TicTacToe isn't exactly a groundbreaking paragon of high strategy to begin with
+
+[9] If this is a copyrighted phrase a) I'm sorry and b) come at me, bruh
