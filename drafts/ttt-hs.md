@@ -346,7 +346,7 @@ We initialized our board to a list of `Nothing`s, so the first time through this
 
 HOWEVER!  If `openCell` comes back `true`, we've finally done it - we've ensured the value passed to `n` from stdin is a value we can meaningfully use as the player's next move.  Hot digggity dog!
 
-THe full `then` block reads: `handleInput board n' >>= compTurn >>= runGame`.  This is three separate function calls wrapped up together with `>>=`, or the `bind` operator.  `>>=` is going to allow us to pass the result of a monad (that second word in the type) as the input to a subsequent monad in the chain.  I think this is clearest through example, and luckily we're working through an example right now!  The first function call is `handleInput board n'`, so let's unpack that first.
+THe full `then` block reads: `handleInput board n' >>= compTurn >>= runGame`.  This is three separate function calls wrapped up together with `>>=`, which is read `bind`.  `>>=` is going to allow us to pass the result of a monad (that second word in the type) as the input to a subsequent monad in the chain, while still keeping it wrapped up in the proper context, in this case `IO a` or specifically `IO Board`.  We want to do stuff to that `Board` without losing the `IO` wrapping.  I think this is clearest through example, and luckily we're working through an example right now!  The first function call is `handleInput board n'`, so let's unpack that first.
 
 ### Making a Play
 
