@@ -1,18 +1,25 @@
-# A Tour of a Haskell App without Honor or Humanity
+# Some Haskell, English'd
+## A TicTacTour Without Honor or Humanity
 
-#### An exercise in re-reading old code I ostensibly wrote in a crazy language I've since forgotten and never really knew
+## The Intro
 
-## The intro
+I am not remotely qualified by any metric to write this post.  This is an exercise in re-reading old code I ostensibly wrote in a crazy language I've since forgotten and never really knew, by a guy who's still pretty new to this whole "learning programming" shindig.  Let's see what happens!
 
-A little over a year ago I got it in my head to learn me a Haskell[1].  Admittedly it was just for the (minimal) street cred at the time, but even though I gave up on Haskell after a few months of exercises I was left with a lasting impression that's followed me as I explore more different kinds of programming languages, and I find myself missing all of the mind-blowing stuff this lnague had ready to go with a quick `$ ghci`.  Some day I'll dive back in armed with the knowledge I've built from getting some actual stuff built, and I'm sure I'll have a better go of it.
+A little over a year ago I got it in my head to learn me a Haskell[1], just for the (minimal) street cred, and I spent a couple weeks with the (rather excellent) [book](http://haskellbook.com/). After several weeks of exercises, I wrote a pretty mean ~100 lines of TicTacToe just to prove to myself I could do *something* after all that, and promptly walked off into the soft, cozy, alluring parens of Clojure.  This was in spring 2017, which means it should be no problem to tell you how it works here now, a little over a year later, having not touched any Haskell at all since.  No problem.
 
-In the meantime, I don't have much to show for this experiment, having jumped ship for other hipster languages.  I did, though, as my final parting act, write a pretty mean ~100 lines of TicTacToe just to prove to myself I could do *something* after all that.  This was in spring 2017, which means it should be no problem to tell you how it works here now, a little over a year later.  No problem.
+As it turns out Haskell is just not that bad.  What can be scary is how different it can be to work with than what you're used to, so you hit a lot more walls at the very beginning, and it can feel difficult knowing how to even go about implementing something simple like this.  Your instincts won't all apply anymore.  Hopefully seeing it in English too to will help you (and me, again) get going!
 
-I am not remotely qualified by any metric to write this post, but as it turns out Haskell is just not that bad.  What's can be scary is how different it can be to work with than what you're used to, so you hit a lot more walls at the very beginning, and it can feel difficult knowing how to even go about implementing something simple like this.  Hopefully seeing it in English too to will help you (and me, again) get going!
+As opposed to a traditional tutorial, this is top-down, entry-point first, let's see what's here sort of deal.  I will step through every line of code as it's called and explain what's going on.
 
-This is **not** a tutorial - I don't think.  I do think it might be useful for building other little Haskell programs for getting your feet wet, but I don't build this up in the way a traditional tutorial would, making sure it compiles along the way.  This is top-down, entry-point first, let's see what's here.    I'd argue it's an equally important skill, but then again, I wrote the damn thing so who'd take my word for it.
+My aim here is for this to be easy to follow if you've never seen a line of Haskell in your life, but in the course of untangling this program, I'm going to get down and dirty with just enough Haskell goodness to explain why the code I have is the way it is.  I won't go very deep into anything, but I'm not going to try to gloss over tricky concepts.  This game is a very simple end goal, but it's gonna have to get a little conceptual here and there so get ready to think some, especially if you're new to either functional programming or strong type systems.
 
-## The program
+if any Haskellers do read this and notice something outrageously dumb that simply cannot stand, please let me know so I can correct it!  I'm going for pared down and simplified for the domain, not dead wrong.
+
+I will say that if you've never programmed before, this might be hard to read and boring, not necessarily in that order.  How'd you even end up here?  Not that it's a bad thing, by all means, learn you some programmin', it's the best, but this random blogpost is probably not where you should start.  I assume familiarity with programming concepts in a general sense like loops and control flow.
+
+I do not remember how this thing works (or much of how Haskell works), so I'm going to write this as I read it and see if we get there in the end.  ¡Vámonos!
+
+## The Program
 
 This is a dirt simple TicTacToe game played on the command line against a randomly playing computer opponent.  Fun, right?  Hours, nay, DAYS of entertainment await.  A project like this is usually my go-to "hello world" in a new language, because at the end it demonstrates you can leverage the language's various facilities at least a little, like control flow and IO and overall structure.  For Haskell, it was more a "TTFN, world", but the point stands.  The full source can be found [here](https://github.com/deciduously/tictactoe-hs/blob/master/src/Main.hs), the entirety of which will appear in snippet-form below.
 
@@ -50,17 +57,7 @@ Human won!
 
 Suck it, random number generator.
 
-## The walkthrough
-
-My aim here is for this to be easy to follow if you've never seen a line of Haskell in your life.  If anything, I'd like to leave you with an understanding of how to think about a typed pure functional program, which can apply in all sorts of different languages.  Haskell is really great at making you learn how to do it right by not even compiling unless you have, and I'd recommend at least playing with it to any programmer.  In the course of untangling this program, I'm going to get down and dirty with just enough Haskell goodness to explain the code I have - no further, but I'm not going to try to gloss over tricky concepts.  This game is a simple end goal, but it's gonna get a little conceptual so get ready to think a little, especially if you're new to either functional programming or strong type systems.
-
-As should be abundantly clear, I don't atually know Haskell.  This little thing is to date the most significant thing I've built with it.  So this post isn't really for Haskell people.  They'll likely be pissed off or appalled.  In fact, they'll surely be both.  However, if any Haskellers do read it and notice something outrageously dumb that simply cannot stand, please let me know so I can correct it!  I'm going for pared down and simplified for the domain, not dead wrong.
-
-All in all, this post is really for me, as an exercise in digging through past thought processes, sprinkled with a whiff of nostalgia for the glass castle.  If anyone else reads it and gets something out of it, all the better.  Instead of going line by line or function by function, I'm going to follow the flow of logic as well as I can.  This is a very short program, so I will cover it in its entirety.  There are a few digressions that dig a little bit into some of why Haskell is the way that it is, but I'm *hoping* these are optional, or at least skimmable.  I know there's a lot here for relatively little output - but Haskell is for Life!
-
-I will say that if you've never programmed before, this might be hard to read and boring, not necessarily in that order.  Do with that what you will.  I do assume familiarity with programming concepts in a general sense like loops and control flow
-
-I do not remember how this thing works (or much of how Haskell works), so I'm going to write this as I read it and see if we get there in the end.  ¡Vámonos!
+## The Good Stuff
 
 ### First steps
 
@@ -176,9 +173,11 @@ So `gameOver` just makes sure there's still a game to play on the board before d
 
 First, it looks like we `print` it out.  Groovy.  But wait!  Slow down.  How does the compiler know what a `Board` should look like?  We made that type up ourself (details follow, as promised).  Well, in Haskell `printablility` is expressed as a *typeclass* called `Show`.  We've been using typeclasses this whole time - they're (to me) whole point of learning Haskell in the first place.
 
-### Digression: Typeclasses: types, with class
+#### A digression - Typeclasses: types, with class
 
 I know I said I wouldn't go too much into it, but this is fun and quick.  It's got all kinds of typeclass goodness to unwrap.  We already know `Maybe` is a higher-kinded type, specifically of *kind* `* -> *`, which means its one of those fancy type-level functions - those asterisks stand in for any type.  This syntax is used to describe the *kind*s of types.  What we didn't talk about with `Maybe` is that it's a member of several useful typeclasses.  We've already talked about some: `Monad`, you may (or may not, I don't know) hae guessed, `Eq`, `Show`.  These apply to specific types like `Int` or `Maybe` and define what happens to them in certain situations.  For now, you can think of them as not unlike interfaces in an object-oriented settings, but they're really so much more than just interfaces.  The compiler knows how to derive simple ones for us for simple types - for instance, when you want to print a `7` to the screen, you pretty much always want to write that numeral to stdout.  If you ask if that `7` is `==` another `7`, it's reasonable to assume the compiler can tell you it, in fact, is.
+
+### `Show` Me The Money
 
 For union types like `Player`, we can tell the compiler to assume we just want to print out the name of the variant like `Human` or `Computer`.  But if we wanted to do something crazy, we could easily just define our own instance of `Show` that has code to manipulate it.  With a more complicated type, like `Board`, we want to have that control.  Here's our definition of `Show` for `Board`, which `print :: IO ()`[6] is currently asking for in order to evaluate:
 
@@ -205,7 +204,6 @@ By the way, this whole bit is not at all Haskell specific.  Recursion and folds 
 The way we take a collection values and make sure we do something with every member of the collection is to consume the collection recursively.  That is, we're going to pass our whole collection into some sort of function which is going to do some sort of processing.  At the end of the function, it's going to call itself again, just with a smaller part of the list - the part we haven't processed.  It will do this again and again, just calling itself with smaller and smallr parts of the collection, until the whole thing is processed.  Easy peasy.  A `fold` is a specific type of recursive function that takes in a data structure, a collection of some type, and a function to use for each member.  It eventually yields just one single value - the eventual result of calling that function on the member and the result of all the previous runs through our recursive function.  The `reduce` operation is a special case of a `fold`, if you've come cross that in, say, JavaScript or Python.
 
 Types are one thing that are at least for me more confusing in english.  If looking at types helps you out, here's the type signature for `foldr`:
-
 
 ```haskell
 foldr :: (a -> r -> r) -> r -> [a] -> r
@@ -252,9 +250,9 @@ If this sounds outrageously inefficient, calling loads and loads of functions al
 
 As an aside, this example could have been rewritten: `addEmUp = foldr (+) 0` - if the argument is the final term in the definition and the argument list, it can be dropped.  This process is known as an [eta-reduction](https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B7-conversion) in the lambda calculus lingo.  The compiler instead sees this definition as a curried function expecting one more value, and if it gets called with that value, it will fully evaluate the expression.
 
-#### Back to `Show`
+### The `Show` Must Go On
 
-That digression got away from me, but now we're armed to dive in to this bigger, messier fold.  We know its going to do the same basic type of thing as `addEmUp`.  So the first thing to look for is those three elements we know we'll need: the processing function, the starting value to accumulate in to, and the collection to process.  As a reminder, here's the first line of our `show` definition:
+That digression got a little nuts, but now we're armed to dive in to this bigger, messier fold.  We know its going to do the same basic type of thing as `addEmUp`.  So the first thing to look for is those three elements we know we'll need: the processing function, the starting value to accumulate in to, and the collection to process.  As a reminder, here's the first line of our `show` definition:
 
 ```haskell
 show (Board cs) = foldr spaceEachThird [].withIndicesFrom 1.fmap showCell $ cs
@@ -276,7 +274,7 @@ The first part of the definition is `(++)` is concatenation.  There's a clue to 
 
 I've grabbed the `bool` function from `Data.Bool` and it's really just some control flow.
 
-TODO COME BACK WHEN YOU UNDERSTAND YOUR CODE
+TODO COME BACK WHEN YOU UNDERSTAND YOUR CODE - fmap showCell happens first, then we fold over the *result* of fmap showcell as our init container with spaceEachThird
 
 ### Gathering Input
 
@@ -319,9 +317,9 @@ else putStrLn "1-9 only please"
 
 The first thing to check is whether or not the single character we now know we have is a valid play or not - it must be a digit from 1 to 9, not a letter or a bit of punctuation or anything.  The first line defines this predicate using the `elem` function, which checks if the first operand of type `a` (anything) is an element of the second.  Most functions in haskell are *prefix* in that the function names come first followed by the arguments.  To use a function of two arguments more like an *infix* operator between two operands, you can wrap it in backticks.
 
-This predicate is asking if our char input is a digit from 1 to 9, and employs a few little tricks to do so.  We can't simply ask if `"1" == 1` (lookin' at you, JavaScript) because one is a character and the other is an integer.  So first we need to get a list `["1", "2", "3", "4", "5", "6", "7", "8", "9"]`.  A quick way to build this array is our good friend `show` - if you recall, this is how we convert a type into something we can print out on the screen.  In the case of an Integer, this means turning it into a char representation first to send to stdout.  We can `map` the `show` function over a list `[1..9]` and it will perform that conversion for us for every element.  We're using the range operator `..` to construct our list, and by tagging the first element `1::Integer` we ensure each element we're mapping `show` over is an integer to begin with.  Pretty handy!
+This predicate is asking if our char input is a digit from 1 to 9, and employs a handy little trick to do so.  We can't simply ask if `"1" == 1` (lookin' at you, JavaScript) because one is a character and the other is an integer.  So first we need to get a list of valid chars `["1", "2", "3", "4", "5", "6", "7", "8", "9"]` to compare against.  A quick way to build this array is our good friend `show` - if you recall, this is how we convert a type into something we can print out on the screen.  In the case of an Integer, this means turning it into a char representation first to send to stdout.  We can `map` the `show` function over a list `[1..9]` and it will perform that conversion for us for every element.  We're using the range operator `..` to construct our list, and by tagging the first element with a concrete type `1::Integer` we ensure each element we're mapping `show` over is an integer to begin with.  Pretty handy!
 
-So, with the predicate out of the way, we've now determined whether or not the input stored in `n` is a single digit.  Our else statement looks like the previous - print out a quick error telling the user how exactly they were dumb, and that's it - head back on up to the top of `runGame` and hope this chucklehead learn their lesson.  If it was a digit, however, we can move on to one final nested `if`:
+So, with the predicate out of the way, we've now determined whether or not the input stored in `n` is a single digit.  Our else statement looks like the previous - print out a quick error telling the user how exactly they were dumb, and that's it - head back on up to the top of `runGame` and hope this chucklehead learned their lesson.  If it was a digit, however, we can move on to one final nested `if`:
 
 ```haskell
  then do
@@ -340,11 +338,32 @@ openCell :: Board -> Int -> Bool
 openCell (Board b) n = isNothing $ b !! (n - 1)
 ```
 
-So, this is a function that takes two arguments, and `Board` nad an integer, and returns a boolean like a predicate should.  We're going to pass in the full board and a specific square, and `openCell` will tell us if the space is already occupied.  In some languages it's good style to name predicates like this something that's obviously a predicate, like with a `?` at the end or a `_p` or something.  TODO LOOK UP HASKELL STYLE GUIDE.
+This is a function that takes two arguments, a `Board` and an integer, and returns a boolean like a predicate should.  We're going to pass in the full board and a specific square, and `openCell` will tell us if the space is already occupied.  In some languages it's good style to name predicates like this something that's obviously a predicate, like with a `?` at the end or a `_p` or something.  I have not done so here, sue me.  TODO LOOK UP HASKELL STYLE GUIDE.
 
-Thanks to Haskell's terseness, this looks more complicated than it is at first glance.  We've seen `$` before - it's function application.  The other funky operator is `!!` - this is just a list subscript.  In a more C-like language, we might have written this exact logic something like `isNothing(b[n - 1])`.  That is, we're asking for the `n - 1`th element of our inner board list `b` (named so via destructuring in the definition: `(Board b)`), and passing it to `isNothing`.  `isNothing` we brought in at the top from `Data.Maybe` and itself is just a predicate which is true if the `Maybe a` passed in is a `Nothing`, as opposed to a `Just a`.
+Thanks to Haskell's operator love affair, this looks a little more complicated than it is at first glance.  We've seen `$` before - it's function application.  The other funky operator is `!!` - this is just a list subscript.  In a more C-like language, we might have written this exact logic something like `isNothing(b[n - 1])`.  That is, we're asking for the `n - 1`th element of our inner board list `b` (named so via destructuring in the definition: `(Board b)`), and passing it to `isNothing`.  `isNothing` we brought in at the top from `Data.Maybe` and itself is just a predicate which is true if the `Maybe a` passed in is a `Nothing`, as opposed to a `Just a`.
 
-We initialized our board to a list of `Nothing`s, so the first time through this loop, any digit we pass in is going to come up clear.
+We initialized our board to a list of `Nothing`s, so the first time through this loop, any digit we pass in is going to come up clear.  If there had been a `Just Human` or `Just Computer`, we'd hit the `else` block, yell at the user a little (we JUST printed out the board state, they're called EYES, use 'em), and take it from the top.
+
+HOWEVER!  If `openCell` comes back `true`, we've finally done it - we've ensured the value passed to `n` from stdin is a value we can meaningfully use as the player's next move.  Hot digggity dog!
+
+THe full `then` block reads: `handleInput board n' >>= compTurn >>= runGame`.  This is three separate function calls wrapped up together with `>>=`, or the `bind` operator.  `>>=` is going to allow us to pass the result of a monad (that second word in the type) as the input to a subsequent monad in the chain.  I think this is clearest through example, and luckily we're working through an example right now!  The first function call is `handleInput board n'`, so let's unpack that first.
+
+### Making a Play
+
+I bet we can work out the type of `handleInput` from the call.  `board` is easy - it's a `Board`, and `n'` is our newly converted integer from stdin.  So we know this will be a `Board -> Int -> something`.  What, though?
+
+Well, we know we're inside an `IO` monad, and in a series of calls chained together with the monadic `>>=`.  So it's a safe bet this will be another `IO a`, that is, an `IO` monad with some type as a result.  And if we look down the chained call, we end things up with a call to `runGame`.  We've already looked at `runGame` (we're inside of it RIGHT NOW), so we know it's a `Board -> IO ()`.  We're calling it here with no argument, but from the type know it will need a `Board`, and we're passing a monadic result through a chain of functions - so it would follow that the type of each step *must* be `IO Board`.  Lo and behold:
+
+```haskell
+handleInput :: Board -> Int -> IO Board
+handleInput board n = do
+  let b = playCell board n Human
+  checkWin b Human
+  gameOver b
+  return b
+```
+
+Just as we expected!  You're super good at this.  
 
 ### Footnotes
 
