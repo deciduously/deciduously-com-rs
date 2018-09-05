@@ -1,11 +1,11 @@
 # Some Haskell, English'd
-## A TicTacTour Without Honor or Humanity
+#### A TicTacTour Without Honor or Humanity
 
 ## The Intro
 
 I am not remotely qualified by any metric to write this post.  This is an exercise in re-reading old code I ostensibly wrote in a crazy language I've since forgotten and never really knew, by a guy who's still pretty new to this whole "learning programming" shindig.  Let's see what happens!
 
-A little over a year ago I got it in my head to learn me a Haskell[1], just for the (minimal) street cred, and I spent a couple weeks with the (rather excellent) [book](http://haskellbook.com/). After several weeks of exercises, I wrote a pretty mean ~100 lines of TicTacToe just to prove to myself I could do *something* after all that, and promptly walked off into the soft, cozy, alluring parens of Clojure.  This was in spring 2017, which means it should be no problem to tell you how it works here now, a little over a year later, having not touched any Haskell at all since.  No problem.
+A little over a year ago I got it in my head to learn me a Haskell[1], just for the (minimal) street cred, and I spent a couple weeks with the (rather excellent) [book](http://haskellbook.com/). After several weeks of exercises, I wrote a pretty mean ~100 lines[1] of TicTacToe just to prove to myself I could do *something* after all that, and promptly walked off into the soft, cozy, alluring parens of Clojure.  This was in spring 2017, which means it should be no problem to tell you how it works here now, a little over a year later, having not touched any Haskell at all since.  No problem.
 
 As it turns out Haskell is just not that bad.  What can be scary is how different it can be to work with than what you're used to, so you hit a lot more walls at the very beginning, and it can feel difficult knowing how to even go about implementing something simple like this.  Your instincts won't all apply anymore.  Hopefully seeing it in English too to will help you (and me, again) get going!
 
@@ -373,7 +373,7 @@ playCell :: Board -> Int -> Player -> Board
 playCell (Board b) n m = Board $ take (n - 1) b ++ [Just m] ++ drop n b
 ```
 
-From the function call, we expected a type like that - 3 arguments.  We also now see it will give us back a `Board` to store in `b`. The only type we haven't seen used much yet is `Player` - but we know all about that already from discussing `Board`!  It can be a `Human` or a `Computer` and nothign else, and in this case we're processing the human's input - so we just pass in `Human`.  The fully qualified type is simply `Human :: Player`.
+From the function call, we expected a type like that - 3 arguments.  We also now see it will give us back a `Board` to store in `b`. The only type we haven't seen used much yet is `Player` - but we know all about that already from discussing `Board`!  It can be a `Human` or a `Computer` and nothing else, and in this case we're processing the human's input - so we just pass in `Human`.  The fully qualified type is simply `Human :: Player`.
 
 In the argument list, we've destructured the `Board` again to access the list of cells inside and assigned letters to the other two[7].
 
@@ -409,13 +409,71 @@ The `let...in` syntax is a way of creating function-local bindings, not unlike `
 Anyway, before diving into the endgame checking, we're going to set up some computed local bindings to make our life a little easier.  The first one calls a helper function:
 
 ```haskell
-bi = withIndicidesFrom 0 b
+bi = withIndicesFrom 0 b
 
 withIndicesFrom :: Int -> [a] -> [(Int, a)]
 withIndicesFrom n = zip [n..]
 ```
 
-TODO
+This is really just a handly alias to attach a more domain-specific semantic name to a general function `zip`.  Given two collections, `[a]` and `[b]`, `zip` give you back a single collection `[(a, b)]`.
+
+This alias just defines the first term of the zip.  You might notice the argument list doesn't match up with our type declaration - we're expecting two arguments, an `Int` and some list, but only have one below.  This is an example of the "eta-reduction" I mentioned earlier - the second argument, namely the list to zip with, appears last in the argument list and the function body, so we drop it from both.  The fully specified version would read:
+
+```haskell
+bi = withIndicesFrom 0 b
+
+withIndicesFrom :: Int -> [a] -> [(Int, a)]
+withIndicesFrom n cs = zip [n..] cs
+```
+
+We're using the argument to define the beginning of a range `[n..]`.  to zip with, which will have the effect of attaching an index to each element in the list.  That's all.
+
+#### A Brief Digression on Laziness
+
+This function brushed up on another super-cool property of Haskell that I haven't made much use of in this program, but is too neat to just blow by.
+
+You may notice that the seemingly-innocuous expression `[n..]` doesn't specify a top value.  What we've done, then, is defined an *infinite list*, starting at `n` and just going and going.
+
+In most programming languages, this is quite obviously not ok.  The process would drop everything else and build this infinite list until it blows the stack and crashes, resulting in a pretty shit game[10].  Haskell, on the other hand, employs *lazy* evaluation semantics.  When the compiler passes through, it's perfectly content to leave that `[n..]` alone until it needs to begin the expansion - and even then, it only expands *as-needed*.  In the case of `withIndicesFrom`, the argument we pass it will be finite, which if you need a refresher, is not as big as infinite.  When we hit the last value of that collection to pass into `zip`, then we're good to go - no need to keep drilling our way through `[n..]` for indices we won't use.  Haskell just leaves it wherever we are and moves on.
+
+This is a pretty incredible property that allows for all kinds of patterns not possible in strict-evaluation languages, but does have the side effect of making some perfomrance characterists difficult to reason about.  It's a good thing to keep in mind when writing Haskell.
+
+### Surveying the damage
+
+So, now we've saved as `bi` a version of the `Board` we're working with zipped up with indices - instead of, e.g., `[Nothing, Just Human, Nothing...]` we have `[(0, Nothing), (1, Just Human), (2, Nothing)...]`.  We're going to use this in our next `let` binding `plays = map fst.filter ((Just m==) . snd) $ bi`.
+
+This line is a little token-soupy, but we're intrepid as heck.  It's a call to `map`, and the collection we're mapping over is the newly defined `bi`, so all that junk in the middle must be our mapping function.  Let's see if we can untangle it.
+
+This function has opted for concision via the `.` composition operator we saw up in our `Show Board` instance, at the cost of readability.  This one actually has a composed function inside a larger composed function, for extra goodness.  These are easiest to read inside-out (Lisp-ers know what's up).
+
+The first action that happens to `bi`, our indexed `Board`, is `filter ((Just m==) . snd)`.  The filter function first calls `snd` on each element, returning just the second element of the tuple:
+
+```haskell
+snd (1, Just Human) == Just Human
+```
+
+Then, we compare it to the value passed in as `m` - remember when we called the function, it looked like `checkWin b Human`.  We're specifically checking if the Human player won the game with their latest play.  This is why we derived the `Eq` typeclass up in the `Player` declaration - this check wouldn't compile otherwise.  So `((Just m==) . snd)` will return true on a `(Int, Maybe Player)` if the second value is `Just Human`, and false otherwise.
+
+Now that we've pared down `bi` to only the cells that have been played, we pass that whole result into `fst` - that is, grab the first value of each tuple.  These are our indices.
+
+The end result that's stored in `plays` is a list of the indices from 0 of all of the places the Human has played.  For example,  `[(0, Nothing), (1, Just Human), (2, Just Computer), (3, Nothing), (4, Just Human)]` will come back with `[1, 4]`.  Neat.
+
+Now that we've got our packed-up Human plays, we can check to see if that constitutes a win.  The main body of the function, following the `in`, is another `when ... do` shindig like we saw back in `gameOver`.  This monad will execute its body under this condition, and otherwise its a no-op.
+
+How about that condition, then?  Let's see: `foldr ((||) . flip isSubsequenceOf plays) False winStates`.  Aha, it's our good old friend `foldr`.  I unabashedly love this function.
+
+True to form, we've got three arguments: a transforming function, an initializer, and a collection.  We've looked at two folds before - the trivial example used an `Int` as an initializer that we added numbers to, and the the code from the game used a collection (that we pre-built).  This time around it's simple a `Bool` - `False`.  That's is a-ok too as long as your transforming function returns a `Bool`!  It can be any type at all.  That means this whole fold will return a `Bool` - by definition, the fold always returns the same type as the initializer: `(a -> r -> **r**) -> **r** -> [a] -> **r**`.  And that's what we want, because `when` expects a predicate.
+
+Before picking apart the transformer, let's look at `winStates` - the collection we're folding over.
+
+```haskell
+winStates :: [[Int]]
+winStates = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+```
+
+This is pretty simple - it's just a list of lists.  This is admittedly not an elegant way to handle this problem, but TicTacToe is simple enough that it's feasible to simply hardcode all the possible winning configurations.  This is a list of lists of `Int`s (`[[Int]]`) just containing all the indexes that are in a row.
+
+Finally, the transofmrer: `(||) . flip isSubsequenceOf plays` TODO
 
 ### RNG Rover
 
@@ -435,7 +493,9 @@ compTurn board@(Board b) = do
   return b2
 ```
 
-TODO
+This one speaks for itself, and its the last thing we havent talked about so we're done!
+
+TODO BEN IT DOES NOT SPEAK FOR ITSELF - DO THE THING
 
 ### The Thrilling Conclusion
 
@@ -444,6 +504,8 @@ Th-th-th-that's all, folks![9]
 ### Footnotes
 
 TODO check yer numbers, foo'
+
+[1] Kinda nuts that I had like 12,000 words to say about 94 lines of code
 
 [1] I hesitated to say [Great Good](http://learnyouahaskell.com/) because that's pretty wishful thinking in my case - Hopefully Not For Nothing is more accurate.  This is a great book nonetheless if you're not ready to shell out $60 for the First Principles book.
 
@@ -460,3 +522,5 @@ TODO check yer numbers, foo'
 [8] Well, more dumb - TicTacToe isn't exactly a groundbreaking paragon of high strategy to begin with
 
 [9] If this is a copyrighted phrase a) I'm sorry and b) come at me, bruh
+
+[10] Yeah, yeah, it already is, save it
