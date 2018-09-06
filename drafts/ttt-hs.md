@@ -205,6 +205,8 @@ By the way, this whole bit is not at all Haskell specific.  Recursion and folds 
 
 #### A Digression on `foldr`
 
+Folds are not an uncommon concept in mainstream languages - if you're already god and comfy with them, feel free to skip this.  If not, though, it will help to know how they work.
+
 The way we take a collection values and make sure we do something with every member of the collection is to consume the collection recursively.  That is, we're going to pass our whole collection into some sort of function which is going to do some sort of processing.  At the end of the function, it's going to call itself again, just with a smaller part of the list - the part we haven't processed.  It will do this again and again, just calling itself with smaller and smallr parts of the collection, until the whole thing is processed.  Easy peasy.  A `fold` is a specific type of recursive function that takes in a data structure, a collection of some type, and a function to use for each member.  It eventually yields just one single value - the eventual result of calling that function on the member and the result of all the previous runs through our recursive function.  The `reduce` operation is a special case of a `fold`, if you've come cross that in, say, JavaScript or Python.
 
 Types are one thing that are at least for me more confusing in english.  If looking at types helps you out, here's the type signature for `foldr`:
@@ -504,7 +506,7 @@ If we've gotten here, it means `checkWin` didn't find a winning board configurat
 
 ### RNG Rover
 
-What's a game of TicTacToe without a steely-eyed, calculating oponent, ready to squelch your every plan?
+We're nearing the end of the road, here - if you're still with me, I'm seriously impressed!  We've just got one last part to pull this together - what's a game of TicTacToe without a steely-eyed, calculating oponent, ready to squelch your every plan?
 
 Well, we're not going to find out here because my computer player is real dumb and plays by dice roll.  It could be fun to try to make a smarter one - I'm leaving that as an exercise to the reader (read: too lazy to do it myself).
 
@@ -520,11 +522,23 @@ compTurn board@(Board b) = do
   return b2
 ```
 
-This one speaks for itself, and its the last thing we havent talked about so we're done!
+Ok.  So, this function is mostly familiar by now.  We see our `IO Board` return type, we're destructuring the argument to get at the list of cells as `b`, we've got our old friend the `do` block - nothing too surprising.
 
-TODO BEN IT DOES NOT SPEAK FOR ITSELF - DO THE THING
+The first line creates local binding `options`, which is going to be the result of `filter`ing our list of cells.  Filter is like `map`, except it returns only the elemnts of the input collection for which the predicate is true.  Again, aptly named.  Let's take a look at the predicate:
+
+```haskell
+(isNothing.snd).withIndicesFrom 1
+```
+
+This function is composed from parts we've seen before.  First, we're going to zip up our cells with indices starting from 1 (spoiler alert, because that's what `playCell` wants as input).  Then, we're going to pass that to the composition `.` of `snd` and `isNothing`.  Hopefully this starts to feel a little more readable by now - in English, this `filter` will have the effect of storing to `options` a list of 1-indexed cells that contain a `Nothing` - anything that's a `Just Human` or `Just Computer` will be omitted.  These comprise the possible cells the computer can choose.
+
+In the next line, we introduce the randomness.  This ends up looking similar to how you'd do this in the language of your choice - `randomRIO` from `System.Random` takes a range and will give you a pseudo-random number in that range.  We're using the length of our `options` list, and storing the result to `r`.
+
+Now, we've got to actually make the change.  This is done with `playCell` again - the differences being that instead of user input, we're using `!!` again to index into `options` with the random number we just grabbed, and we're passing in `Computer` instead of `Human`.  Now, `b2` holds our new `Board` with the random play applied.  With that taken care of, we can see if the computer managed to win the thing with `checkWin`.  If it did, `checkWin` will handle ending the game for us, and if not, we `return` again.  No need to call `gameOver` again here, because `runGame` does so first - and our pipeline `handleInput >>= compTurn >>= runGame` is sending us right back up there.
 
 ### The Thrilling Conclusion
+
+We did it!  I'm all out of code to unpack.  `runGame` has everything it needs to alternate human turns and computer turns until somebody wins or we run out of spaces.  Haskell ain't no thang :)
 
 Th-th-th-that's all, folks![9]
 
