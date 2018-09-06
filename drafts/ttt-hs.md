@@ -397,9 +397,7 @@ checkWin board@(Board b) m =
     plays = map fst.filter ((Just m==) . snd) $ bi
   in
    when (foldr ((||) . flip isSubsequenceOf plays) False winStates) $ do
-     print board
-     putStrLn $ show m ++ " won!"
-     exitSuccess
+     -- End the game!
 ```
 
 Ok, this is a little bigger.  It's a function of two arguments returning an IO monad, which (I really hope) makes sense by now.  This monad isn't returning anything (note we havent stored this function callt o a binding, we just called it), so `IO ()` is appropriate.  This will just do some IO, and will be responsible for terminating the process if we find a win.
@@ -473,7 +471,27 @@ winStates = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [
 
 This is pretty simple - it's just a list of lists.  This is admittedly not an elegant way to handle this problem, but TicTacToe is simple enough that it's feasible to simply hardcode all the possible winning configurations.  This is a list of lists of `Int`s (`[[Int]]`) just containing all the indexes that are in a row.
 
-Finally, the transofmrer: `(||) . flip isSubsequenceOf plays` TODO
+Finally, the transformer: `(||) . flip isSubsequenceOf plays`.  We know this function will be of type `(a -> r -> r)` - filling in the concrete types this becomes `([Int] -> Bool -> Bool)` - out initial collection is a `[[Int]]`, a list of lists of `Int`s, so each time through we're checking just one of these sublists and returning true or false.
+
+THe workhorse function I chose is the aptly-named `isSubsequenceOf`, imported with care from `Data.List`.  I actually came across this library function in the course of googling a problem I come up against trying to implement it myself.  I don't remember the specific nature of the problem, but Haskell's standard library is as incredible as the language itself - so don't forget to look through it for functionality you need before falling down the wrong rabbit hole!
+
+#### Typclass constraints - a digression
+
+According to [Hackage](https://hackage.haskell.org/package/base-4.11.1.0/docs/Data-List.html#v:isSubsequenceOf),  this function has type `Eq a => [a] -> [a] -> Bool`.  this signture has one syntactic element I haven't touched upon yet - that first part, `Eq a =>`, is a *typeclass constraint* on `a`.  I've been using `a` as a stand-in for "any type" over the course of this article.  This syntax lets you more precisely define what sorts of types are ok - unlike a fold, `isSubSequenceOf` only makes sense to call on lists with elements that can be compared to each other.  This stands to reason - it's going to have to check each element in one list against the other.  This is Haskells system for *ad-hoc polymorphism*.  If the types involved do not have instances of the typeclasses specified, either derived or hand-implemented, this won't compile.
+
+### `flip`ing out
+
+The last unfamiliar part of this function composition is the word "flip".  This is a simple but useful function that just switches the order in which the operators are expected.  The way we're calling it in our transformer function, `isSubsequenceOf` receives our `plays` list first, and then the element of `winStates` the fold is currently processing.  However, we want it the other way around - to tell if we've won, we want to check if the winState is a subsequence of all the plays this player has made.  You can win with other non-lined-up plays on the board, they're just irrelevant.  "flip" just swaps the positions of the arguments so we get the logic we want!
+
+Finally, we compose that result with the simple operator `(||)`.  This is usually used infix, e.g. `true || false`, but we can use it as a normal prefix function as well bywrapping it in parens.  One value it receives will be the result of our `flip isSubsequenceOf` call, and the other?  Why, that's our initialized `Bool`!  By chaining together all these calls with a big 'ol `OR`/`||`, this transformer will return `True` the first time any one of these iterations comes back `true` (meaning `plays` contains one of our `winStates`), or remain `False` as we initialized it.
+
+If it was `False`, we didn't win - `checkWin` has nothing else to do.  The code inside the block doesn't execute, we have `()` to return, and control passes back to the caller.  If we *did* win:
+
+```haskell
+print board
+putStrLn $ show m ++ " won!"
+     exitSuccess
+```
 
 ### RNG Rover
 
