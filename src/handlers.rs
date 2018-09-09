@@ -59,7 +59,7 @@ pub fn index(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = acti
 fn get_post_links() -> Vec<String> {
     let posts_dir = "templates/posts";
     let names: Vec<String> = file_names(posts_dir)
-        .unwrap_or(vec!["nada.html".into()])
+        .unwrap_or_else(|_| vec!["nada.html".into()])
         .iter()
         .map(|f| (*base_file_name(&*f).unwrap()).into())
         .collect();

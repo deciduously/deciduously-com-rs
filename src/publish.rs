@@ -27,7 +27,13 @@ fn switch_ext_md_to_html(p: &str) -> Result<String> {
 
 // Takes an HTML string and surrounds it with template boilerplate
 fn wrap_content(content: &str, title: &str) -> String {
-    let prefix = "{% extends \"skel.html\" %}\n\n{% block content %}";
+    let prism_head =
+        "{% block head %}<link href=\"themes/prism.css\" rel=\"stylesheet\" />{% endblock %}";
+    let prism_body = "<script src=\"prism.js\"></script>";
+    let prefix = format!(
+        "{{% extends \"skel.html\" %}}\n\n{}\n\n{{% block content %}}\n\n{}",
+        prism_head, prism_body
+    );
     let title_block = format!("{{% block title %}}{}{{% endblock %}}", title);
     let postfix = "{% endblock %}";
     // You may need to kill the second \n
