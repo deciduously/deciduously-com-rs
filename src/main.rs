@@ -25,6 +25,7 @@ mod markdown;
 mod publish;
 
 use actix_web::{
+    fs::StaticFiles,
     http,
     middleware::{self, cors::Cors},
     server::HttpServer,
@@ -84,6 +85,7 @@ fn serve() -> Result<()> {
                         .register()
                 }
             })
+            .handler("/static", StaticFiles::new("./static/").unwrap())
             .middleware(middleware::Logger::default())
     }).bind(addr)
         .chain_err(|| "Could not initialize server")?
