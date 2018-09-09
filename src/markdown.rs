@@ -1,9 +1,12 @@
+// markdown.rs contains the bake(filep_str) fn, wrapping pulldown-cmark
 use pulldown_cmark::{html, Parser};
 use std::{
-    fs::File, io::{prelude::*, BufReader, Result}, path::PathBuf,
+    fs::File,
+    io::{BufReader, Read, Result},
+    path::PathBuf,
 };
 
-// Take a post name, look for it in posts/, and return the parsed HTML string
+// Take a post name, look for it in drafts/, and return the parsed HTML string
 pub fn bake(f: &str) -> Result<String> {
     // Open the file
     let path = PathBuf::from(&format!("drafts/{}.md", f));

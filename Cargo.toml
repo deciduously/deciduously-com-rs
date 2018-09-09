@@ -1,14 +1,16 @@
 [package]
+authors = ["deciduously <github@deciduously.com>"]
 name = "deciduously-com"
 version = "0.2.0"
-authors = ["deciduously <github@deciduously.com>"]
-
 [dependencies]
-
-actix = "0.5"
-actix-web = "0.6"
+actix = "0.7"
+actix-web = "0.7"
 env_logger = "0.5"
+error-chain = "0.12"
+futures = "*"
 lazy_static = "1.0"
+log = "*"
+pretty_env_logger = "*"
 pulldown-cmark = "0.1"
 serde = "1"
 serde_derive = "1"
