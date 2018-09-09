@@ -65,7 +65,7 @@ impl Cmd {
 }
 
 fn serve() -> Result<()> {
-    let addr = "127.0.0.1:8080";
+    let addr = "0.0.0.0:80";
 
     let sys = actix::System::new("deciduously-com");
 
