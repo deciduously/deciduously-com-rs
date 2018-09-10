@@ -3,4 +3,4 @@
 **/*.rs.bk
 /templates/posts/*
 /release
-/extern
+/static/extern
