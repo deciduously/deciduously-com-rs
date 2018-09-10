@@ -88,14 +88,6 @@ impl PostsContext {
     }
 }
 
-pub fn index(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
-    let body = super::TERA
-        .render("index.html", &EmptyContext::new())
-        .unwrap();
-
-    result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
-}
-
 fn get_demo_links() -> Vec<(String, String, String)> {
     vec![Extern::Dots.get_link_text(), Extern::Mines.get_link_text()]
 }
@@ -224,5 +216,14 @@ pub fn get_template(
             .render("404.html", &NotFoundContext::new(path.as_str().into()))
             .unwrap(),
     };
+    result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
+}
+
+// GET /
+pub fn index(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
+    let body = super::TERA
+        .render("index.html", &EmptyContext::new())
+        .unwrap();
+
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
 }
