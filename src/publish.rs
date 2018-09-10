@@ -1,7 +1,33 @@
 // publish.rs turns our markdown drafts into templates/posts
 use errors::*;
-use markdown::bake;
-use std::{fs, path::Path};
+use pulldown_cmark::{html, Parser};
+use std::{
+    fs::{self, File},
+    io::{BufReader, Read},
+    path::{Path, PathBuf},
+};
+
+// Take a post name, look for it in drafts/, and return the parsed HTML string
+fn bake(f: &str) -> Result<String> {
+    // Open the file
+    let path = PathBuf::from(&format!("drafts/{}.md", f));
+    let md_file =
+        File::open(&path).chain_err(|| format!("could not open {}", &path.to_str().unwrap()))?;
+
+    // Read the contents to a string
+    let mut reader = BufReader::new(md_file);
+    let mut md_string = String::new();
+    // read_to_string returns the number of bytes read - we aren't using that.
+    let _ = reader.read_to_string(&mut md_string);
+
+    // Parse the markdown to HTML
+    let parser = Parser::new(&md_string);
+    let mut html_buf = String::new();
+    html::push_html(&mut html_buf, parser);
+
+    // Send it on up
+    Ok(html_buf)
+}
 
 pub fn file_names(path: &str) -> Result<Vec<String>> {
     Ok(fs::read_dir(path)
@@ -26,7 +52,7 @@ fn switch_ext_md_to_html(p: &str) -> Result<String> {
 }
 
 // Takes an HTML string and surrounds it with template boilerplate
-fn wrap_content(content: &str, title: &str) -> String {
+pub fn wrap_content(content: &str, title: &str) -> String {
     let prism_head =
         "{% block head %}<link href=\"../static/themes/prism.css\" rel=\"stylesheet\" />{% endblock %}";
     let prism_body = "<script src=\"../static/prism.js\"></script>";
