@@ -89,7 +89,11 @@ impl PostsContext {
 }
 
 fn get_demo_links() -> Vec<(String, String, String)> {
-    vec![Extern::Dots.get_link_text(), Extern::Mines.get_link_text()]
+    vec![
+        Extern::Dots.get_link_text(),
+        Extern::Impact.get_link_text(),
+        Extern::Mines.get_link_text(),
+    ]
 }
 
 // Eventually, have a /drafts endpoint that can show the draft md files
@@ -107,11 +111,20 @@ fn get_post_links() -> Vec<String> {
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Extern {
     Dots,
+    Impact,
     Mines,
 }
 
 impl Extern {
-    fn get_link(&self) -> PathBuf {
+    fn get_description(self) -> String {
+        match self {
+            Extern::Dots => "A WASM clone of the flash game Boomshine".into(),
+            Extern::Impact => "A WASM incremental game skeleton implemented in Yew".into(),
+            Extern::Mines => "A ClojureScript clone of Minesweeper - broken!".into(),
+        }
+    }
+
+    fn get_link(self) -> PathBuf {
         let mut path = PathBuf::new();
         path.push(".");
         path.push("static");
@@ -121,19 +134,12 @@ impl Extern {
         path
     }
 
-    fn get_link_text(&self) -> (String, String, String) {
-        match self {
-            Extern::Dots => (
-                "dots".into(),
-                self.get_link().to_str().unwrap().into(),
-                "A WASM clone of the flash game Boomshine".into(),
-            ),
-            Extern::Mines => (
-                "mines".into(),
-                self.get_link().to_str().unwrap().into(),
-                "A Reagent clone of Minesweeper - currently unfinished and broken!   Whee.".into(),
-            ),
-        }
+    fn get_link_text(self) -> (String, String, String) {
+        (
+            format!("{:?}", self),
+            self.get_link().to_str().unwrap().into(),
+            self.get_description(),
+        )
     }
 }
 
@@ -142,6 +148,7 @@ impl fmt::Display for Extern {
         use self::Extern::*;
         let s = match *self {
             Dots => "dots",
+            Impact => "impact",
             Mines => "mines",
         };
         write!(f, "{}", s)
@@ -154,6 +161,7 @@ impl FromStr for Extern {
     fn from_str(s: &str) -> errors::Result<Self> {
         match s {
             "dots" => Ok(Extern::Dots),
+            "impact" => Ok(Extern::Impact),
             "mines" => Ok(Extern::Mines),
             _ => bail!("Not a known extern"),
         }

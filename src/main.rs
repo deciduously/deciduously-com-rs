@@ -104,18 +104,15 @@ fn serve() -> Result<()> {
                         .resource("/{page}", |r| r.route().with(get_template))
                         .resource("/demo/{demo}", |r| {
                             r.method(http::Method::GET).with(get_demo)
-                        })
-                        .resource("/post/{post}", |r| {
+                        }).resource("/post/{post}", |r| {
                             r.method(http::Method::GET).with(get_post)
-                        })
-                        .register()
+                        }).register()
                 }
-            })
-            .handler("/static", StaticFiles::new("./static/").unwrap())
+            }).handler("/static", StaticFiles::new("./static/").unwrap())
             .middleware(middleware::Logger::default())
     }).bind(addr)
-        .chain_err(|| "Could not initialize server")?
-        .start();
+    .chain_err(|| "Could not initialize server")?
+    .start();
 
     let _ = sys.run();
     Ok(())

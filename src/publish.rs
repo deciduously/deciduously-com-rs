@@ -38,8 +38,7 @@ pub fn file_names(path: &str) -> Result<Vec<String>> {
                     .file_name()
                     .and_then(|n| n.to_str().map(String::from))
             })
-        })
-        .collect::<Vec<String>>())
+        }).collect::<Vec<String>>())
 }
 
 pub fn base_file_name(p: &str) -> Result<&str> {
