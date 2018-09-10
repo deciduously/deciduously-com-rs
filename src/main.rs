@@ -33,7 +33,7 @@ use actix_web::{
 use errors::*;
 use handlers::{get_demo, get_post, get_template, index};
 use publish::publish;
-use std::{env, process};
+use std::{env, process, str::FromStr};
 use tera::Tera;
 
 lazy_static! {
@@ -63,9 +63,33 @@ impl Cmd {
     }
 }
 
+enum Build {
+    Dev,
+    Prod,
+}
+
+impl FromStr for Build {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        Ok(match s {
+            "dev" | "DEV" => Build::Dev,
+            "prod" | "PROD" => Build::Prod,
+            _ => Build::Dev,
+        })
+    }
+}
+
+fn get_build_config() -> Result<Build> {
+    Build::from_str(&::std::env::var("BUILD").unwrap_or("NOTSET".into()))
+}
+
 fn serve() -> Result<()> {
     // get_vars DEV 127.0.0.1:8080, PROD
-    let addr = "127.0.0.1:8080";
+    let addr = match get_build_config()? {
+        Build::Dev => "127.0.0.1:8080",
+        Build::Prod => "0.0.0.0:80",
+    };
 
     let sys = actix::System::new("deciduously-com");
 

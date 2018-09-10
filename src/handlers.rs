@@ -8,7 +8,7 @@ struct DemosContext {
 }
 
 impl DemosContext {
-    fn new(demos: Vec<(String, String)>) -> Self {
+    fn new(demos: Vec<(String, String, String)>) -> Self {
         let mut ret = Vec::new();
         for d in demos {
             ret.push(DemoLink::new(d));
@@ -20,12 +20,17 @@ impl DemosContext {
 #[derive(Serialize)]
 struct DemoLink {
     description: String,
+    link: String,
     name: String,
 }
 
 impl DemoLink {
-    fn new((name, description): (String, String)) -> Self {
-        Self { description, name }
+    fn new((name, link, description): (String, String, String)) -> Self {
+        Self {
+            description,
+            link,
+            name,
+        }
     }
 }
 
@@ -72,9 +77,10 @@ pub fn index(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = acti
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
 }
 
-fn get_demo_links() -> Vec<(String, String)> {
+fn get_demo_links() -> Vec<(String, String, String)> {
     vec![(
         "dots".into(),
+        "../static/extern/dots/index.html".into(),
         "A WASM clone of the flash game Boomshine".into(),
     )]
 }
@@ -95,7 +101,9 @@ fn get_post_links() -> Vec<String> {
 pub fn get_demo(demo: Path<String>) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
     let path = demo.into_inner();
     let body = match path.as_str() {
-        "dots" => "dots!".to_string(),
+        "dots" => super::TERA
+            .render("extern/dots/index.html", &EmptyContext::new())
+            .unwrap(),
         _ => format!("<h3>I haven't written anything called {}!</h3>", path),
     };
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()

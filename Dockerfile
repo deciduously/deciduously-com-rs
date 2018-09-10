@@ -7,4 +7,6 @@ RUN cargo install
 
 EXPOSE 80
 
+ENV BUILD PROD
+
 CMD ["deciduously-com"]

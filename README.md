@@ -1,14 +1,17 @@
 # deciduously-com
-Kinda-sorta proxy the [Cobalt UI](http://cobalt-org.github.io/docs/usage.html)
-* Use a "config.yml" for site-wide config
-* "serve" command to serve the site
-* add "new" to add a post - optional?
 
-For now, skip the draft/publish feature.  Its nice to have, but not necessary for getting the site up.  I DO wnat it later, though.
+Rewrite of my personal (unfinished) website at [deciduously.com](http://deciduously.com), this time in `actix_web`.
 
-You need:
+## Usage
 
-* Layouts/Templates - (probably done - askama) - would be cool if we could have a set header, a set head, a set menubar, etc
-* Posts - these are Markdown
-* Other apps - like Mines - maybe use Docker now that you can?
-* metadata?
+Go to the website
+
+## Develop
+
+Requires stable Rust and Docker.  Use `cargo run -- publish` to write any markdown files in `/drafts` to Tera (Jinja) templates,. and `cargo run -- serve` to serve the site.  Run `docker build -t deciduously-com` to build the docker image.
+
+Takes either `BUILD=dev` or `BUILD=prod`, defaulting to `dev`.
+
+## Externs
+
+* Dots - run the `wasm-pack init`, `cd www && yarn webpack`, copy everything in `www/dist` to `static/externs/dots`.
