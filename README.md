@@ -1,10 +1,10 @@
 # deciduously-com
 
-Rewrite of my personal (unfinished) website at [deciduously.com](http://deciduously.com), this time in `actix_web`.
+My personal website at [deciduously.com](http://deciduously.com).  Implemented in `actix_web`.
 
 ## Usage
 
-Go to the website
+Go to the website!
 
 ## Develop
 

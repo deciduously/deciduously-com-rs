@@ -81,7 +81,7 @@ impl FromStr for Build {
 }
 
 fn get_build_config() -> Result<Build> {
-    Build::from_str(&::std::env::var("BUILD").unwrap_or("NOTSET".into()))
+    Build::from_str(&::std::env::var("BUILD").unwrap_or_else(|_| "NOTSET".into()))
 }
 
 fn serve() -> Result<()> {
