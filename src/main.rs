@@ -1,6 +1,5 @@
 extern crate actix;
 extern crate actix_web;
-extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
@@ -32,7 +31,7 @@ use actix_web::{
     App,
 };
 use errors::*;
-use handlers::{get_post, get_posts, index};
+use handlers::{get_demo, get_post, get_template, index};
 use publish::publish;
 use std::{env, process};
 use tera::Tera;
@@ -65,7 +64,8 @@ impl Cmd {
 }
 
 fn serve() -> Result<()> {
-    let addr = "0.0.0.0:80";
+    // get_vars DEV 127.0.0.1:8080, PROD
+    let addr = "127.0.0.1:8080";
 
     let sys = actix::System::new("deciduously-com");
 
@@ -78,7 +78,10 @@ fn serve() -> Result<()> {
                         .allowed_methods(vec!["GET"])
                         .max_age(3600)
                         .resource("/", |r| r.route().a(index))
-                        .resource("/posts", |r| r.route().a(get_posts))
+                        .resource("/{page}", |r| r.route().with(get_template))
+                        .resource("/demo/{demo}", |r| {
+                            r.method(http::Method::GET).with(get_demo)
+                        })
                         .resource("/post/{post}", |r| {
                             r.method(http::Method::GET).with(get_post)
                         })

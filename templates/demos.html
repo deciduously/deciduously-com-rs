@@ -1,0 +1,11 @@
+{% extends "skel.html" %} {% block title %}demos{% endblock %} {% block content %}
+<h1>demos</h1>
+<p>Some stuff I done built</p>
+
+<ul>
+    {% for demo in demos %}
+    <li><a href="demo/{{ demo.name }}">{{ demo.name }} - {{ demo.description }}</a></li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

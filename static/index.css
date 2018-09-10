@@ -1,0 +1,18 @@
+.navbar {
+    align-content: center;
+    background-color: lightgray;
+}
+
+body {
+    background-color: beige;
+}
+
+footer {
+    align-content: center;
+    background-color: lightgray;
+    font-size: 10px;
+}
+
+.navButton {
+    text-decoration: none;
+}

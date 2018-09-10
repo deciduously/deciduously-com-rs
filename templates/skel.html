@@ -4,11 +4,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/index.css">
     <title>{% block title %}{{ title }} - deciduously{% endblock %}</title>
     {% block head %}{% endblock %}
 </head>
 
 <body>
+    <section class="navbar">
+        <div class="container">
+            <button>
+                <a class="navButton" href="/">home</a>
+            </button>
+            <button>
+                <a class="navButton" href="posts">posts</a>
+            </button>
+            <button>
+                <a class="navButton" href="demos">demos</a>
+            </button>
+            <button>
+                <a class="navButton" href="contact">contact</a>
+            </button>
+        </div>
+    </section>
     <section class="section">
         <div class="container">
             <div id="content">
@@ -17,8 +34,7 @@
             <footer>
                 &#169; 2018
                 <a href="/">deciduously</a>
-                <br />
-                <a href="https://github.com/deciduously/deciduously-com">source</a>
+                <br />Built with Rust - check out my guts on <a href="https://github.com/deciduously/deciduously-com">github</a>
             </footer>
         </div>
     </section>

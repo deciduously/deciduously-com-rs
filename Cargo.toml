@@ -2,15 +2,15 @@
 authors = ["deciduously <github@deciduously.com>"]
 name = "deciduously-com"
 version = "0.2.0"
+
 [dependencies]
 actix = "0.7"
 actix-web = "0.7"
-env_logger = "0.5"
 error-chain = "0.12"
-futures = "*"
+futures = "0.1"
 lazy_static = "1.0"
-log = "*"
-pretty_env_logger = "*"
+log = "0.4"
+pretty_env_logger = "0.2"
 pulldown-cmark = "0.1"
 serde = "1"
 serde_derive = "1"

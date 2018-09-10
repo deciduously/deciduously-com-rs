@@ -3,18 +3,36 @@ use futures::{future::result, Future};
 use publish::{base_file_name, file_names};
 
 #[derive(Serialize)]
-struct IndexContext {}
+struct DemosContext {
+    demos: Vec<DemoLink>,
+}
 
-impl IndexContext {
-    fn new() -> Self {
-        Self {}
+impl DemosContext {
+    fn new(demos: Vec<(String, String)>) -> Self {
+        let mut ret = Vec::new();
+        for d in demos {
+            ret.push(DemoLink::new(d));
+        }
+        Self { demos: ret }
     }
 }
 
 #[derive(Serialize)]
-struct PostContext {}
+struct DemoLink {
+    description: String,
+    name: String,
+}
 
-impl PostContext {
+impl DemoLink {
+    fn new((name, description): (String, String)) -> Self {
+        Self { description, name }
+    }
+}
+
+#[derive(Serialize)]
+struct EmptyContext {}
+
+impl EmptyContext {
     fn new() -> Self {
         Self {}
     }
@@ -48,10 +66,17 @@ impl PostsContext {
 
 pub fn index(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
     let body = super::TERA
-        .render("index.html", &IndexContext::new())
+        .render("index.html", &EmptyContext::new())
         .unwrap();
 
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
+}
+
+fn get_demo_links() -> Vec<(String, String)> {
+    vec![(
+        "dots".into(),
+        "A WASM clone of the flash game Boomshine".into(),
+    )]
 }
 
 // Eventually, have a /drafts endpoint that can show the draft md files
@@ -66,11 +91,13 @@ fn get_post_links() -> Vec<String> {
     names
 }
 
-// GET /posts
-pub fn get_posts(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
-    let body = super::TERA
-        .render("posts.html", &PostsContext::new(get_post_links()))
-        .unwrap();
+// GET /demos/<demo>
+pub fn get_demo(demo: Path<String>) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
+    let path = demo.into_inner();
+    let body = match path.as_str() {
+        "dots" => "dots!".to_string(),
+        _ => format!("<h3>I haven't written anything called {}!</h3>", path),
+    };
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
 }
 
@@ -78,6 +105,28 @@ pub fn get_posts(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = 
 pub fn get_post(post: Path<String>) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
     // TODO return a 404 if not found
     let path = format!("posts/{}.html", post.into_inner());
-    let body = super::TERA.render(&path, &PostContext::new()).unwrap();
+    let body = super::TERA.render(&path, &EmptyContext::new()).unwrap();
+    result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
+}
+
+// GET /{page}
+pub fn get_template(
+    page: Path<String>,
+) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
+    let path = page.into_inner();
+    let body = match path.as_str() {
+        "contact" => super::TERA
+            .render("contact.html", &EmptyContext::new())
+            .unwrap(),
+        "demos" => super::TERA
+            .render("demos.html", &DemosContext::new(get_demo_links()))
+            .unwrap(),
+        "posts" => super::TERA
+            .render("posts.html", &PostsContext::new(get_post_links()))
+            .unwrap(),
+        _ => super::TERA
+            .render("404.html", &EmptyContext::new())
+            .unwrap(),
+    };
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
 }

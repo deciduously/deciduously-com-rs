@@ -1,7 +1,7 @@
 FROM rust:1.28.0
 
 WORKDIR /usr/src/deciduously-com
-COPY . .
+ADD . /usr/src/deciduously-com
 
 RUN cargo install
 
