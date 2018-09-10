@@ -20,7 +20,6 @@ mod errors {
     error_chain!{}
 }
 mod handlers;
-mod markdown;
 mod publish;
 
 use actix_web::{

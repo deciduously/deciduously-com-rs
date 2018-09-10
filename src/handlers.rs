@@ -1,6 +1,14 @@
 use actix_web::{self, AsyncResponder, HttpRequest, HttpResponse, Path};
+use errors::{self, *};
 use futures::{future::result, Future};
-use publish::{base_file_name, file_names};
+use publish::{base_file_name, file_names, wrap_content};
+use std::{
+    fmt,
+    fs::File,
+    io::{prelude::*, BufReader},
+    path::PathBuf,
+    str::FromStr,
+};
 
 #[derive(Serialize)]
 struct DemosContext {
@@ -44,6 +52,17 @@ impl EmptyContext {
 }
 
 #[derive(Serialize)]
+struct NotFoundContext {
+    name: String,
+}
+
+impl NotFoundContext {
+    fn new(name: String) -> Self {
+        Self { name }
+    }
+}
+
+#[derive(Serialize)]
 struct PostLink {
     name: String,
 }
@@ -78,11 +97,7 @@ pub fn index(_req: &HttpRequest) -> Box<Future<Item = HttpResponse, Error = acti
 }
 
 fn get_demo_links() -> Vec<(String, String, String)> {
-    vec![(
-        "dots".into(),
-        "../static/extern/dots/index.html".into(),
-        "A WASM clone of the flash game Boomshine".into(),
-    )]
+    vec![Extern::Dots.get_link_text(), Extern::Mines.get_link_text()]
 }
 
 // Eventually, have a /drafts endpoint that can show the draft md files
@@ -97,15 +112,88 @@ fn get_post_links() -> Vec<String> {
     names
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Extern {
+    Dots,
+    Mines,
+}
+
+impl Extern {
+    fn get_link(&self) -> PathBuf {
+        let mut path = PathBuf::new();
+        path.push(".");
+        path.push("static");
+        path.push("extern");
+        path.push(&format!("{}", self));
+        path.push("index.html");
+        path
+    }
+
+    fn get_link_text(&self) -> (String, String, String) {
+        match self {
+            Extern::Dots => (
+                "dots".into(),
+                self.get_link().to_str().unwrap().into(),
+                "A WASM clone of the flash game Boomshine".into(),
+            ),
+            Extern::Mines => (
+                "mines".into(),
+                self.get_link().to_str().unwrap().into(),
+                "A Reagent clone of Minesweeper - currently unfinished and broken!   Whee.".into(),
+            ),
+        }
+    }
+}
+
+impl fmt::Display for Extern {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::Extern::*;
+        let s = match *self {
+            Dots => "dots",
+            Mines => "mines",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+impl FromStr for Extern {
+    type Err = Error;
+
+    fn from_str(s: &str) -> errors::Result<Self> {
+        match s {
+            "dots" => Ok(Extern::Dots),
+            "mines" => Ok(Extern::Mines),
+            _ => bail!("Not a known extern"),
+        }
+    }
+}
+
+// given the index hile as a relative path
+// get_extern_file returns the HTML to return
+// wrapped in a Tera template
+fn get_extern_file(e: Extern) -> errors::Result<String> {
+    let title = format!("{}", e);
+
+    let path = e.get_link();
+
+    // open path and read to String
+    let f = File::open(path).chain_err(|| "could not open extern's index file")?;
+    let mut bfr = BufReader::new(f);
+    let mut raw = String::new();
+    bfr.read_to_string(&mut raw)
+        .chain_err(|| "could not read extern's index file")?;
+    Ok(wrap_content(&raw, &title))
+}
+
 // GET /demos/<demo>
 pub fn get_demo(demo: Path<String>) -> Box<Future<Item = HttpResponse, Error = actix_web::Error>> {
     let path = demo.into_inner();
-    let body = match path.as_str() {
-        "dots" => super::TERA
-            .render("extern/dots/index.html", &EmptyContext::new())
-            .unwrap(),
-        _ => format!("<h3>I haven't written anything called {}!</h3>", path),
-    };
+    let path_str = path.as_str();
+    let body = get_extern_file(Extern::from_str(path_str).unwrap()).unwrap_or_else(|_| {
+        super::TERA
+            .render("404.html", &NotFoundContext::new(path_str.into()))
+            .unwrap()
+    });
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
 }
 
@@ -133,7 +221,7 @@ pub fn get_template(
             .render("posts.html", &PostsContext::new(get_post_links()))
             .unwrap(),
         _ => super::TERA
-            .render("404.html", &EmptyContext::new())
+            .render("404.html", &NotFoundContext::new(path.as_str().into()))
             .unwrap(),
     };
     result(Ok(HttpResponse::Ok().content_type("text/html").body(body))).responder()
