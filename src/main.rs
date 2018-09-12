@@ -22,15 +22,9 @@ mod errors {
 mod handlers;
 mod publish;
 
-use actix_web::{
-    fs::StaticFiles,
-    http,
-    middleware::{self, cors::Cors},
-    server::HttpServer,
-    App,
-};
+use actix_web::{fs::StaticFiles, http, middleware, server::HttpServer, App};
 use errors::*;
-use handlers::{get_demo, get_post, get_template, index};
+use handlers::{get_post, get_template, index};
 use publish::publish;
 use std::{env, process, str::FromStr};
 use tera::Tera;
@@ -94,22 +88,27 @@ fn serve() -> Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .configure({
-                |app| {
-                    Cors::for_app(app)
-                        .send_wildcard()
-                        .allowed_methods(vec!["GET"])
-                        .max_age(3600)
-                        .resource("/", |r| r.route().a(index))
-                        .resource("/{page}", |r| r.route().with(get_template))
-                        .resource("/demo/{demo}", |r| {
-                            r.method(http::Method::GET).with(get_demo)
-                        }).resource("/post/{post}", |r| {
-                            r.method(http::Method::GET).with(get_post)
-                        }).register()
-                }
-            }).handler("/static", StaticFiles::new("./static/").unwrap())
-            .middleware(middleware::Logger::default())
+            .resource("/", |r| r.route().a(index))
+            .handler("/static", StaticFiles::new("./static/").unwrap())
+            .handler(
+                "/dots",
+                StaticFiles::new("./static/extern/dots/")
+                    .unwrap()
+                    .index_file("index.html"),
+            ).handler(
+                "/mines",
+                StaticFiles::new("./static/extern/mines")
+                    .unwrap()
+                    .index_file("index.html"),
+            ).handler(
+                "/impact",
+                StaticFiles::new("./static/extern/impact")
+                    .unwrap()
+                    .index_file("index.html"),
+            ).resource("/{page}", |r| r.route().with(get_template))
+            .resource("/post/{post}", |r| {
+                r.method(http::Method::GET).with(get_post)
+            }).middleware(middleware::Logger::default())
     }).bind(addr)
     .chain_err(|| "Could not initialize server")?
     .start();
@@ -119,7 +118,7 @@ fn serve() -> Result<()> {
 }
 
 fn usage() -> Result<()> {
-    println!("deciduously-com v0.2.0\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
+    println!("deciduously-com v0.3.0\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
     process::exit(0);
 }
 

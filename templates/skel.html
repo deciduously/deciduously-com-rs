@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/index.css">
     <title>{% block title %}{{ title }} - deciduously{% endblock %}</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125658268-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-125658268-1');
+    </script>
     {% block head %}{% endblock %}
 </head>
 
@@ -32,7 +41,7 @@
                 {% block content %}{% endblock %}
             </div>
             <footer>
-                deciduously-com v0.2.2 &#169; 2018
+                deciduously-com v0.3.0 &#169; 2018
                 <a href="/">deciduously</a>
                 <br />Built with Rust - check out my guts on <a href="https://github.com/deciduously/deciduously-com">github</a>
             </footer>

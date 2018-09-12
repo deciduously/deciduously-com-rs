@@ -4,7 +4,7 @@
 
 <ul>
     {% for demo in demos %}
-    <li><a href={{ demo.link }}>{{ demo.name }} - {{ demo.description }}</a></li>
+    <li><a href="{{ demo.name }}">{{ demo.name }} - {{ demo.description }}</a></li>
     {% endfor %}
 </ul>
 
