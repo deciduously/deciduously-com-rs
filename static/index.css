@@ -1,6 +1,9 @@
-.navbar {
-    align-content: center;
+.navContainer {
     background-color: lightgray;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
 }
 
 body {
@@ -14,5 +17,16 @@ footer {
 }
 
 .navButton {
-    text-decoration: none;
+    display: flex;
+    width: 100px;
+    height: 100%;
+}
+
+.navButton a {
+    text-decoration-style: none;
+}
+
+.header {
+    align-content: center;
+    justify-content: center;
 }

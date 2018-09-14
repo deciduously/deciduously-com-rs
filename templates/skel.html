@@ -20,19 +20,19 @@
 
 <body>
     <section class="navbar">
-        <div class="container">
-            <button>
-                <a class="navButton" href="/">home</a>
-            </button>
-            <button>
-                <a class="navButton" href="/posts">posts</a>
-            </button>
-            <button>
-                <a class="navButton" href="/demos">demos</a>
-            </button>
-            <button>
-                <a class="navButton" href="/contact">contact</a>
-            </button>
+        <div class="navContainer">
+            <div class="navButton">
+                <a href="/">home</a>
+            </div>
+            <div class="navButton">
+                <a href="/posts">posts</a>
+            </div>
+            <div class="navButton">
+                <a href="/demos">demos</a>
+            </div>
+            <div class="navButton">
+                <a href="/contact">contact</a>
+            </div>
         </div>
     </section>
     <section class="section">
@@ -41,7 +41,7 @@
                 {% block content %}{% endblock %}
             </div>
             <footer>
-                deciduously-com v0.3.0 &#169; 2018
+                deciduously-com v0.3.1 &#169; 2018
                 <a href="/">deciduously</a>
                 <br />Built with Rust - check out my guts on <a href="https://github.com/deciduously/deciduously-com">github</a>
             </footer>

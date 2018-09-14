@@ -92,7 +92,7 @@ fn serve() -> Result<()> {
             .handler("/static", StaticFiles::new("./static/").unwrap())
             .handler(
                 "/dots",
-                StaticFiles::new("./static/extern/dots/")
+                StaticFiles::new("./static/extern/dots")
                     .unwrap()
                     .index_file("index.html"),
             ).handler(
@@ -118,7 +118,7 @@ fn serve() -> Result<()> {
 }
 
 fn usage() -> Result<()> {
-    println!("deciduously-com v0.3.0\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
+    println!("deciduously-com v0.3.1\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
     process::exit(0);
 }
 
