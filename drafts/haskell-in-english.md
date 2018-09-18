@@ -23,34 +23,26 @@ I do not remember how this thing works (or much of how Haskell works), so I'm go
 
 This is a dirt simple TicTacToe game played on the command line against a randomly playing computer opponent.  Fun, right?  Hours, nay, DAYS of entertainment await.  A project like this is usually my go-to "hello world" in a new language, because at the end it demonstrates you can leverage the language's various facilities at least a little, like control flow and IO and overall structure.  For Haskell, it was more a "TTFN, world", but the point stands.  The full source can be found [here](https://github.com/deciduously/tictactoe-hs/blob/master/src/Main.hs), the entirety of which will appear in snippet-form below.
 
-The squares are labelled like so (BEN SEE IF YOU CANT GET THE NUMBERS ON FOR THIS POST).
-
-```
-1 2 3
-4 5 6
-7 8 9
-```
-
 Here's a sample game:
 ```
- _  _  _
- _  _  _
- _  _  _
+ 1  2  3
+ 4  5  6
+ 7  8  9
  
 Your move: 3
- _  O  X
- _  _  _
- _  _  _
+ 1  O  X
+ 4  5  6
+ 7  8  9
 
 Your move: 7
- _  O  X
- _  _  _
- X  O  _
+ 1  O  X
+ 4  5  6
+ X  O  9
  
  Your move: 5
- _  O  X
- _  X  _
- X  O  _
+ 1  O  X
+ 4  X  6
+ X  O  9
 
 Human won!
 ```
