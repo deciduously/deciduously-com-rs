@@ -118,7 +118,7 @@ fn serve() -> Result<()> {
 }
 
 fn usage() -> Result<()> {
-    println!("deciduously-com v0.3.1\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
+    println!("deciduously-com v0.3.2\nSupported operations: help | publish | serve\ne.g.: deciduously-com publish or cargo run -- publish");
     process::exit(0);
 }
 
