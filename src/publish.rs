@@ -38,7 +38,8 @@ pub fn file_names(path: &str) -> Result<Vec<String>> {
                     .file_name()
                     .and_then(|n| n.to_str().map(String::from))
             })
-        }).collect::<Vec<String>>())
+        })
+        .collect::<Vec<String>>())
 }
 
 pub fn base_file_name(p: &str) -> Result<&str> {
@@ -62,7 +63,10 @@ fn wrap_content(content: &str, title: &str) -> String {
     let title_block = format!("{{% block title %}}{}{{% endblock %}}", title);
     let postfix = format!("{}{{% endblock %}}", prism_body);
     // You may need to kill the second \n
-    format!("{}\n{}\n{}\n{}", prefix, title_block, content, postfix)
+    format!(
+        "{}\n{}\n{{% raw %}}{}{{% endraw %}}\n{}",
+        prefix, title_block, content, postfix
+    )
 }
 
 pub fn publish() -> Result<()> {

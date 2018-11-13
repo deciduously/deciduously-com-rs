@@ -1,6 +1,6 @@
 #/usr/bin/env sh
 
-VERSION="0.3.2"
+VERSION="0.3.3"
 
 cargo clean
 docker build -t deciduously-com .
